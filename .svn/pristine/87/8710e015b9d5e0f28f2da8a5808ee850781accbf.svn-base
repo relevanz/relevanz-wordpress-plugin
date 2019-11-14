@@ -1,0 +1,23 @@
+#scip #adminmenuwrap #adminmenu a.menu-top.toplevel_page_relevatracking_menu  {
+  color: #ffba00;
+}
+
+#chartdiv {
+    width: 100%;
+    height: 100%;
+}
+#tableSortData{
+    border-collapse: collapse;
+}
+#tableSortData thead th{
+    border:1px solid #ccc;
+    cursor:pointer;
+}
+
+#tableSortData tbody tr:nth-child(even){
+    background: #f3f3f3;
+}
+
+.datepicker .datefield{
+    margin:10px 20px;
+}

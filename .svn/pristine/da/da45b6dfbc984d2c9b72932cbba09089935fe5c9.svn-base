@@ -1,0 +1,138 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: RelevaTracking\n"
+"POT-Creation-Date: 2017-11-24 12:19+0300\n"
+"PO-Revision-Date: 2018-01-30 10:49+0100\n"
+"Last-Translator: OPPO\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.0.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: relevatracking.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: admin/class-relevatracking-admin.php:114
+msgid "API Key"
+msgstr "API-Schlüssel"
+
+#: admin/class-relevatracking-admin.php:115
+msgid "Please do not forget to enter your API Key"
+msgstr "Bitte vergessen Sie nicht, Ihren API Key einzugeben"
+
+#: admin/class-relevatracking-admin.php:126
+#: admin/class-relevatracking-admin.php:127
+msgid "Releva tracking"
+msgstr "releva.nz"
+
+#: admin/class-relevatracking-admin.php:137
+#: admin/class-relevatracking-admin.php:138
+msgid "releva.nz"
+msgstr "releva.nz"
+
+#: admin/class-relevatracking-admin.php:321
+msgid ""
+"If you are already registered and have received our key, enter it in the "
+"following:"
+msgstr ""
+"Wenn Sie bereits registriert sind und unseren Key erhalten haben, geben Sie "
+"diesen im Folgenden ein:"
+
+#: admin/class-relevatracking-admin.php:322
+msgid ""
+"<a href=\"http://releva.nz\" target=\"_blank\">Still unable to register. Now "
+"catch up</a>"
+msgstr ""
+"<a href=\"https://releva.nz\" target=\"_blank\">Noch nicht registriert. "
+"Jetzt nachholen</a>"
+
+#: admin/class-relevatracking-admin.php:323
+msgid "Invalid Key!"
+msgstr "Ungültiger Schlüssel!"
+
+#: admin/class-relevatracking-admin.php:324
+msgid "Send"
+msgstr "Senden"
+
+#: admin/class-relevatracking-admin.php:325
+msgid "Releva Settings Saved"
+msgstr "releva.nz Einstellungen gespeichert"
+
+#: admin/class-relevatracking-admin.php:326
+msgid "Error saving settings"
+msgstr "Fehler beim Speichern der Einstellungen"
+
+#: admin/partials/admin-chart.php:23
+msgid "Releva Chart"
+msgstr "Reporting"
+
+#: admin/partials/admin-menu.php:20
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: admin/partials/admin-menu.php:23
+msgid "Link to export products"
+msgstr "Exportlink"
+
+#: admin/partials/admin-notices.php:10
+msgid "Settings saved successfully!"
+msgstr "Einstellungen erfolgreich gespeichert!"
+
+#: includes/class-wc-api-products.php:147
+msgid "You do not have permission to read the products count"
+msgstr "Sie haben keine Berechtigung, die Anzahl der Produkte zu lesen"
+
+#: includes/class-wc-api-products.php:455
+#: includes/class-wc-api-products.php:456
+msgid "Placeholder"
+msgstr "Platzhalter"
+
+#: relevatracking.php:49
+#, php-format
+msgid ""
+"%1$sReleva Tracking is inactive%2$s as it requires WooCommerce. Please "
+"%3$sactivate WooCommerce version 2.4.13 or newer%4$s"
+msgstr ""
+"%1$sreleva.nz ist inaktiv%2$s, da es WooCommerce erfordert. Bitte "
+"%3$saktiviere WooCommerce Version 2.4.13 oder neuer%4$s"
+
+#. Plugin Name of the plugin/theme
+msgid "RelevaTracking iframe"
+msgstr "releva.nz"
+
+#. Plugin URI of the plugin/theme
+#. Author URI of the plugin/theme
+msgid "http://webiprog.com"
+msgstr "https://releva.nz"
+
+#. Description of the plugin/theme
+msgid ""
+"RelevaTracking iframe plugin for adding tracking code to site footer section."
+msgstr "releva.nz • Technologie für personalisierte Werbung"
+
+#. Author of the plugin/theme
+msgid "oppo"
+msgstr "releva.nz"
+
+#~ msgid "Client ID"
+#~ msgstr "Mandanten-ID"
+
+#~ msgid "Please do not forget to enter your client ID"
+#~ msgstr "Bitte vergessen Sie nicht, Ihre Kunden-ID einzugeben"
+
+#~ msgid "RelevaTracking"
+#~ msgstr "RelevaTracking"
+
+#~ msgid ""
+#~ "RelevaTracking plugin for adding tracking code to site footer section."
+#~ msgstr ""
+#~ "RelevaTracking Plugin für das Hinzufügen von Tracking-Code auf Website-"
+#~ "Fußzeile."

@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: RelevaTracking\n"
+"POT-Creation-Date: 2017-11-24 12:35+0300\n"
+"PO-Revision-Date: 2018-01-30 10:50+0100\n"
+"Last-Translator: OPPO\n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.0.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: relevatracking.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: admin/class-relevatracking-admin.php:116
+msgid "API Key"
+msgstr "API Key"
+
+#: admin/class-relevatracking-admin.php:117
+msgid "Please do not forget to enter your API Key"
+msgstr "Please do not forget to enter your API Key"
+
+#: admin/class-relevatracking-admin.php:128
+#: admin/class-relevatracking-admin.php:129
+msgid "Releva tracking"
+msgstr "releva.nz"
+
+#: admin/class-relevatracking-admin.php:139
+#: admin/class-relevatracking-admin.php:140
+msgid "releva.nz"
+msgstr "releva.nz"
+
+#: admin/class-relevatracking-admin.php:323
+msgid ""
+"If you are already registered and have received our key, enter it in the "
+"following:"
+msgstr ""
+"If you are already registered and have received our key, please enter it:"
+
+#: admin/class-relevatracking-admin.php:324
+msgid ""
+"<a href=\"http://releva.nz\" target=\"_blank\">Still unable to register. Now "
+"catch up</a>"
+msgstr ""
+"<a href=\"http://releva.nz\" target=\"_blank\">Not registered yet. Register "
+"for increased revenue</a>"
+
+#: admin/class-relevatracking-admin.php:325
+msgid "Invalid Key!"
+msgstr "Invalid Key!"
+
+#: admin/class-relevatracking-admin.php:326
+msgid "Send"
+msgstr "Save"
+
+#: admin/class-relevatracking-admin.php:327
+msgid "Releva Settings Saved"
+msgstr "releva.nz Configuration saved"
+
+#: admin/class-relevatracking-admin.php:328
+msgid "Error saving settings"
+msgstr "Error saving settings"
+
+#: admin/partials/admin-chart.php:23
+msgid "Releva Chart"
+msgstr "releva.nz Reporting"
+
+#: admin/partials/admin-menu.php:20
+msgid "Settings"
+msgstr "Settings"
+
+#: admin/partials/admin-menu.php:23
+msgid "Link to export products"
+msgstr "Link to export products"
+
+#: admin/partials/admin-notices.php:10
+msgid "Settings saved successfully!"
+msgstr "Settings saved successfully!"
+
+#: includes/class-wc-api-products.php:147
+msgid "You do not have permission to read the products count"
+msgstr "You do not have permission to read the products count"
+
+#: includes/class-wc-api-products.php:455
+#: includes/class-wc-api-products.php:456
+msgid "Placeholder"
+msgstr "Placeholder"
+
+#: relevatracking.php:49
+#, php-format
+msgid ""
+"%1$sReleva Tracking is inactive%2$s as it requires WooCommerce. Please "
+"%3$sactivate WooCommerce version 2.4.13 or newer%4$s"
+msgstr ""
+"%1$sreleva.nz is inactive%2$s as it requires WooCommerce. Please "
+"%3$sactivate WooCommerce version 2.4.13 or newer%4$s"
+
+#. Plugin Name of the plugin/theme
+msgid "RelevaTracking iframe"
+msgstr "releva.nz"
+
+#. Plugin URI of the plugin/theme
+#. Author URI of the plugin/theme
+msgid "http://webiprog.com"
+msgstr "https://releva.nz"
+
+#. Description of the plugin/theme
+msgid ""
+"RelevaTracking iframe plugin for adding tracking code to site footer section."
+msgstr "releva.nz - Technology for pesonalized advertising"
+
+#. Author of the plugin/theme
+msgid "oppo"
+msgstr "releva.nz"
+
+#~ msgid "Client ID"
+#~ msgstr "Client ID"
+
+#~ msgid "Please do not forget to enter your client ID"
+#~ msgstr "Please do not forget to enter your client ID"
+
+#~ msgid "RelevaTracking"
+#~ msgstr "RelevaTracking"
+
+#~ msgid ""
+#~ "RelevaTracking plugin for adding tracking code to site footer section."
+#~ msgstr ""
+#~ "RelevaTracking plugin for adding tracking code to site footer section."
