@@ -397,9 +397,9 @@ class Relevatracking_Public {
 
 			$this->load_confirmation_order_id();
 			$eventname='';
-			if(count($this->products_name)) {
+			if(count($this->product_ids)) {
 			//$eventname = json_encode(implode(',',$this->products_name));
-			$eventname = $this->escapeJavaScriptText(implode(',',$this->products_name));
+			$eventname = implode(',',$this->product_ids);
 			}
 
 			$this->url_js='https://d.hyj.mobi/convNetw?cid='.$this->client_id.'&orderId='.$this->order_id.'&amount='.$this->order_total.'&eventName='.$eventname.'&network=relevanz';
@@ -412,6 +412,7 @@ class Relevatracking_Public {
 
 	protected $order_id ;
 	protected $products_name = array();
+	protected $product_ids = array();
 	protected $order_total ;
 
 	// get Order Success page data
@@ -426,10 +427,13 @@ class Relevatracking_Public {
 
 			if ( $item['variation_id'] ) {
 				$product = new \WC_Product_Variation( $item['variation_id'] );
+				$id = $product->get_parent_id();
 			} else {
 				$product = new \WC_Product( $item['product_id'] );
+				$id = $product->get_id();
 			}
 			$this->products_name[] = $product->get_name();
+			$this->product_ids[] = $id;
 		}
 		return true;
 		}
