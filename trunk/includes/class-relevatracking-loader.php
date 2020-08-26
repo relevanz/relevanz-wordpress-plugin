@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
@@ -19,7 +19,7 @@
  *
  * @package    Relevatracking
  * @subpackage Relevatracking/includes
- * @author     oppo <oleg@webiprog.com>
+ * @author     Relevanz <tec@releva.nz>
  */
 class Relevatracking_Loader {
 

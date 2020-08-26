@@ -109,7 +109,7 @@ msgstr "releva.nz"
 
 #. Plugin URI of the plugin/theme
 #. Author URI of the plugin/theme
-msgid "http://webiprog.com"
+msgid "https://releva.nz"
 msgstr "https://releva.nz"
 
 #. Description of the plugin/theme

@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
@@ -22,7 +22,7 @@
  * @since      1.0.0
  * @package    Relevatracking
  * @subpackage Relevatracking/includes
- * @author     oppo <oleg@webiprog.com>
+ * @author     Relevanz <tec@releva.nz>
  */
 class Relevatracking_i18n {
 

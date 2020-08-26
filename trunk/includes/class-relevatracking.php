@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
@@ -25,7 +25,7 @@
  * @since      1.0.0
  * @package    Relevatracking
  * @subpackage Relevatracking/includes
- * @author     oppo <oleg@webiprog.com>
+ * @author     Relevanz <tec@releva.nz>
  */
 class Relevatracking {
 

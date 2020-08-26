@@ -50,7 +50,7 @@
 
 				 var apiKey = localStorage.getItem('userAPI');
 
-                   var getUrl = "https://customer.releva.nz/?apikey=" + apiKey;
+                   var getUrl = "https://frontend.releva.nz/token?token=" + apiKey;
 				    //$('#RelevaChart').load(getUrl);
 					$("#gopolegelcontent").attr("src" , getUrl );
 
@@ -101,7 +101,7 @@
                         click: function() {
                             var userAPI = $('#userKeyInput').val();
 							userAPI = $.trim(userAPI);
-                            var userKeyURL = "http://api.hyj.mobi/user/get?apikey=" + userAPI;
+                            var userKeyURL = "https://backend.releva.nz/v1/campaigns/get?apikey=" + userAPI;
                             $.ajax({
                                 url: userKeyURL,
                                 type: 'GET',

@@ -3,7 +3,7 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
@@ -18,7 +18,7 @@
  *
  * @package    Relevatracking
  * @subpackage Relevatracking/admin
- * @author     oppo <oleg@webiprog.com>
+ * @author     Relevanz <tec@releva.nz>
  */
 class Relevatracking_Admin
 {
@@ -71,7 +71,7 @@ class Relevatracking_Admin
     protected $options = array();
     const MENU_LABEL = 'Releva tracking';
     const MENU_POSITION = '5';
-    const RELEVATRC_KEY_URL = 'https://api.hyj.mobi/user/get';
+    const RELEVATRC_KEY_URL = 'https://backend.releva.nz/v1/campaigns/get';
 
     // self::checkRelevaUser($apikey);
     public static function checkRelevaUser($apikey = '', $url = '', $timeout = 5)
@@ -227,7 +227,7 @@ class Relevatracking_Admin
 			$dialog_received = __('If you are already registered and have received our key, enter it in the following:', $this->plugin_name);
 			$dialog_received .=' <a href="admin.php?page=relevatracking_menu"><strong>' .__('Settings', $this->plugin_name) . '</strong></a>';
 
-            $dialog_register = __('<a href="http://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name);
+            $dialog_register = __('<a href="https://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name);
 
 			echo '<div style="margin: 25px 20px 0 2px;" id="setting-error-api_key" class="update-nag"><p>' .$dialog_received . '</p><p>' .$dialog_register . '</p></div>' . "\n";
 			}
@@ -465,7 +465,7 @@ class Relevatracking_Admin
         wp_localize_script($this->plugin_name, $this->plugin_name . '_opt', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'dialog_received' => __('If you are already registered and have received our key, enter it in the following:', $this->plugin_name),
-            'dialog_register' => __('<a href="http://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name),
+            'dialog_register' => __('<a href="https://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name),
             'dialog_invalid' => __('Invalid Key!', $this->plugin_name),
             'dialog_ok' => __('Send', $this->plugin_name),
             'settings_saved' => __('Releva Settings Saved', $this->plugin_name),

@@ -3,7 +3,7 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
@@ -18,7 +18,7 @@
  *
  * @package    Relevatracking
  * @subpackage Relevatracking/public
- * @author     oppo <oleg@webiprog.com>
+ * @author     Relevanz <tec@releva.nz>
  */
 class Relevatracking_Public {
 
@@ -81,10 +81,10 @@ class Relevatracking_Public {
 			if($apikey) {
 
 			$queryParams['apikey'] = $apikey;
-			$url='http://api.hyj.mobi/user/get';
+			$url='https://backend.releva.nz/v1/campaigns/get';
 			$connectUrl = $url. '?' . http_build_query($queryParams);
 			$data = self::getUrl($connectUrl, 5);
-			//'response' => '{"user_id":277,"budget":2,"tariff_name":"Target 1 ","pricing":89}',
+			
 			 $response=self::arrayGetValue($data, 'response');
 			 $response = json_decode ($response) ;
 

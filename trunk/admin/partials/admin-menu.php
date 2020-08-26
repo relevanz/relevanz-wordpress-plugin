@@ -20,7 +20,7 @@ if ( current_user_can( 'manage_options' ) == false ) {
 		_e( 'Settings', $this->plugin_name) ?></h3>
 	</p>
 
-	<p><strong><?php _e( 'Link to export products', $this->plugin_name ); ?></strong>: <span style="color:#005ebb"><?php echo home_url() ; ?><strong>/?releva_action=jsonexport</strong></span></p><hr />
+	<p style="display:none"><strong><?php _e( 'Link to export products', $this->plugin_name ); ?></strong>: <span style="color:#005ebb"><?php echo home_url() ; ?><strong>/?releva_action=jsonexport</strong></span></p><hr />
 
 	<?php if ( $this->options ): ?>
 

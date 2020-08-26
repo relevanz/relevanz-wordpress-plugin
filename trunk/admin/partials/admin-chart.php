@@ -5,16 +5,12 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @link       http://webiprog.com
+ * @link       https://releva.nz
  * @since      1.0.0
  *
  * @package    Relevatracking
  * @subpackage Relevatracking/admin/partials
  */
-/*
-CATRUN_FRZUIQWCV
-{"user_id":277,"budget":1.4,"tariff_name":"Target 1 ","pricing":89}
-*/
 ?>
 <div id="RelevaWrap" class="wrap">
 
