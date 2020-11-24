@@ -2,7 +2,7 @@
 Contributors: relevanz
 Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
 Requires at least: 3.0.1
-Tested up to: 5.5
+Tested up to: 5.6
 Requires PHP: 5.2
 Stable tag: trunk
 License: GPLv2 or later
@@ -49,6 +49,6 @@ Das dynamische Retargeting mit dem releva.nz Plugin kannst Du 30 Tage kostenfrei
 Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://help.releva.nz/), ansonsten schicke uns doch einfach eine E-Mail an support@releva.nz
 
 == Screenshots ==
-1. Die wichtigsten Statistiken auf einen Blick
-2. Werbebudget direkt einstellbar
-3. Grafisch aufbereitete Statistiken
+1. Alle Statistiken auf einen Blick. Sehen Sie Ihre Erfolge transparent direkt im Plugin.
+2. Tarif Informationen und die direkte Einstellung ihres täglichen Werbebudgets mit einem Klick.
+3. Auch grafisch aufbereitet, sehen Sie unmittelbare Ausschläge.
