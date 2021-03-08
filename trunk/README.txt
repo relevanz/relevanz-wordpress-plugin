@@ -2,7 +2,7 @@
 Contributors: relevanz
 Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
 Requires at least: 3.0.1
-Tested up to: 5.6
+Tested up to: 5.7
 Requires PHP: 5.2
 Stable tag: trunk
 License: GPLv2 or later
