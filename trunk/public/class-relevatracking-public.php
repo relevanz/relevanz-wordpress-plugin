@@ -361,7 +361,7 @@ class Relevatracking_Public {
 	public function retargeting_category() {
 		// URL:  https://pix.hyj.mobi/rt?t=d&action=c&cid=CLIENT_ID&id=CATEGORY_ID
 		//echo "<pre>is_product_taxonomy"; var_export(is_product_taxonomy() ); echo "</pre>";
-		if ( is_product_category() ) {
+		if ( function_exists('is_product_category') && is_product_category() ) {
          global $wp_query;
 		 // get the query object
 		 $cat = $wp_query->get_queried_object();
