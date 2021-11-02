@@ -56,6 +56,8 @@ class Relevatracking_Public {
 		$this->client_id = self::load_client_id();
         // http://localhost/patricianic.domain.wp/?releva_action=jsonexport (json export product)
 		add_action( 'releva_jsonexport', array( $this, 'jsonexport' ) );
+		add_action( 'releva_csvexport', array( $this, 'csvexport' ) );
+		add_action( 'releva_callback', array( $this, 'callback' ) );
 
 	}
 
@@ -113,7 +115,91 @@ class Relevatracking_Public {
 		}
        }
 
-    // http://localhost/patricianic.domain.wp/?releva_action=jsonexport (json export product)
+	public function getPhpVersion() {
+		return [
+			'version' => phpversion(),
+			'sapi-name' => php_sapi_name(),
+			'memory-limit' => ini_get( 'memory_limit' ),
+			'max-execution-time' => ini_get( 'max_execution_time' ),
+		];
+	}
+
+	public function getDbVersion() {
+		global $wpdb;
+
+		$version_comment = $wpdb->get_var( 'SELECT @@version_comment AS `server`' );
+		return [
+			'version' => $wpdb->db_server_info(),
+			'server' => $version_comment,
+		];
+	}
+
+	public function getServerEnvironment() {
+		return [
+			'server-software' => isset( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : null,
+			'php' => $this->getPhpVersion(),
+			'db' => $this->getDbVersion(),
+		];
+	}
+
+	public function getCallbacks() {
+		return [
+			'callback' => [
+				'url' => site_url('?releva_action=callback'),
+				'parameters' => [],
+			],
+			'export' => [
+				'url' => site_url('?releva_action=csvexport'),
+				'parameters' => [
+					'page' => [
+						'type' => 'integer',
+						'optional' => true,
+						'info' => [
+							'items-per-page' => 2500,
+						],
+					],
+				],
+			],
+		];
+	}
+
+	public function callback() {
+		$apikey = (string)get_option( 'relevatracking_api_key' );
+		$client_id = (string)get_option( 'relevatracking_client_id' );
+		$auth = isset($_GET['auth'])?$_GET['auth']:'';
+		$page = isset($_GET['page'])?$_GET['page']:0;
+
+		if( $auth != md5( $apikey.':'.$client_id ) )
+		{
+			exit;
+		}
+
+		ob_end_flush();
+		ob_start();
+
+		header('Content-Type: application/json');
+
+		$wc_version = '';
+		if( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) )
+		{
+			$wc_version = WC_VERSION;
+		}
+		$callback = [
+			'plugin-version' => $this->version,
+			'shop' => [
+				'system' => 'WooCommerce',
+				'version' => $wc_version,
+			],
+			'environment' => $this->getServerEnvironment(),
+			'callbacks' => $this->getCallbacks(),
+		];
+		echo json_encode( $callback );
+
+		echo ob_get_clean();
+		exit;
+	}
+
+	// http://localhost/patricianic.domain.wp/?releva_action=jsonexport (json export product)
 	public function jsonexport() {
                $args = array(
 					//'posts_per_page' => 10000,
@@ -177,6 +263,102 @@ class Relevatracking_Public {
 					echo  json_encode($full_data);
 					exit;
 		}
+
+	public function csvexport() {
+		$apikey = (string)get_option( 'relevatracking_api_key' );
+		$client_id = (string)get_option( 'relevatracking_client_id' );
+		$auth = isset($_GET['auth'])?$_GET['auth']:'';
+		$page = isset($_GET['page'])?$_GET['page']:0;
+
+		if( $auth != md5( $apikey.':'.$client_id ) )
+		{
+			exit;
+		}
+
+		$args = array(
+			'post_status'   => array('publish'),
+			'fields'        => 'ids',
+			'posts_per_page'=> -1,
+			'post_type'     => array('product'),
+			'orderby' => 'id',
+			'order' => 'asc',
+		);
+		if( $page > 0 )
+		{
+			$args['posts_per_page'] = 2500;
+			$args['paged'] = $page;
+		}
+
+		$the_query = new WP_Query( $args );
+		// The Loop
+		$numProducts = 0;
+		global $wpdb;
+
+		ob_end_flush();
+		ob_start();
+
+		header('Content-Type: text/csv');
+		header('X-Relevanz-Product-Count: '.$the_query->found_posts);
+		$op = fopen("php://output", "wb");
+		$header = ['id','categoryIds','name','descriptionShort','descriptionLong','price','priceOffer','link','image','lastUpdate'];
+		fputcsv($op, $header, ',', '"');
+
+		if( $the_query->have_posts() )
+		{
+			//while ( $the_query->have_posts() ) {
+			//$the_query->the_post();
+			foreach ($the_query->posts as $product_id) {
+
+				//$the_query->post->ID = $product_id
+
+				$single_product = array();
+				$product = wc_get_product($product_id);
+				if(empty($product) ) {
+					continue;
+				}
+				$single_product['id'] = $product_id;
+				//$single_product['product_id'] = $product->get_id();
+
+				$post_categories = wp_get_post_terms($product_id, $taxonomy = 'product_cat');
+				$cat = ''; $ii = 0;
+				foreach((array)$post_categories as $post_category):
+					if($ii > 0){$cat .= ',';}
+					//$cat .= $post_category->name;
+					$cat .= $post_category->term_id;
+					$ii++;
+				endforeach;
+				$single_product['categoryIds'] = $cat;
+
+				$single_product['name'] = $product->get_name();
+				$single_product['descriptionShort'] = $product->get_short_description();
+				$single_product['descriptionLong'] = $product->get_description();
+
+				$single_product['price'] = wc_get_price_including_tax( $product, array('price' => $product->get_regular_price() ) );
+				//number_format( floatval( get_post_meta( $product_id, '_regular_price', true ) ), 2, '.', '' );
+				$single_product['priceOffer'] = wc_get_price_including_tax( $product, array('price' => $product->get_sale_price() ) );
+				//( get_post_meta( $product_id, '_sale_price', true ) ? number_format( floatval( get_post_meta( $product_id, '_sale_price', true ) ), 2, '.', '' ) : number_format( floatval( get_post_meta( $product_id, '_regular_price', true ) ), 2, '.', '' ) );
+
+				$single_product['link'] = $product->get_permalink();
+
+				$single_product['image'] = $this->get_images( $product )[0];
+
+				$lastUpdate = get_the_modified_time( 'U', $product_id );
+				if( empty( $lastUpdate ) )
+				{
+					$lastUpdate = get_the_time( 'U', $product_id );
+				}
+				$single_product['lastUpdate'] = $lastUpdate;
+
+				fputcsv( $op, $single_product, ',', '"' );
+			}
+
+
+		}
+		fclose($op);
+
+		echo ob_get_clean();
+		exit;
+	}
 
 	/**
 	 * Get the images for a product or product variation
