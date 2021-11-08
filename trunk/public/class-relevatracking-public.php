@@ -129,7 +129,7 @@ class Relevatracking_Public {
 
 		$version_comment = $wpdb->get_var( 'SELECT @@version_comment AS `server`' );
 		return [
-			'version' => $wpdb->db_server_info(),
+			//'version' => $wpdb->db_server_info(),
 			'server' => $version_comment,
 		];
 	}
