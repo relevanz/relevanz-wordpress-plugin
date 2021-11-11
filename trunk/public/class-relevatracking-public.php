@@ -98,7 +98,11 @@ class Relevatracking_Public {
 
 		}
 
-		return self::$cache[$storeId] ;
+		if (isset(self::$cache[$storeId])){
+			return self::$cache[$storeId] ;
+		} else {
+			return 0;
+		}
 
 	}
 
@@ -604,7 +608,7 @@ class Relevatracking_Public {
 		//wc_order_59576109b13fa
 		if($this->order_id) {
 		$order = new \WC_Order( $this->order_id );
-		$this->order_total = $order->total;
+		$this->order_total = number_format( (float) $order->get_total() - $order->get_total_tax() - $order->get_total_shipping(), wc_get_price_decimals(), '.', '' );
 		foreach ( $order->get_items() as $item ) {
 
 			if ( $item['variation_id'] ) {
