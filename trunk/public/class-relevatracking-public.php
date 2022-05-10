@@ -54,8 +54,7 @@ class Relevatracking_Public {
 		// Is there a client_id ?
 		//$this->load_client_id();
 		$this->client_id = self::load_client_id();
-        // http://localhost/patricianic.domain.wp/?releva_action=jsonexport (json export product)
-		add_action( 'releva_jsonexport', array( $this, 'jsonexport' ) );
+
 		add_action( 'releva_csvexport', array( $this, 'csvexport' ) );
 		add_action( 'releva_callback', array( $this, 'callback' ) );
 
@@ -203,70 +202,6 @@ class Relevatracking_Public {
 		exit;
 	}
 
-	// http://localhost/patricianic.domain.wp/?releva_action=jsonexport (json export product)
-	public function jsonexport() {
-               $args = array(
-					//'posts_per_page' => 10000,
-					//'product_cat' => 'category-slug-here',
-					//'post_type' => 'product',
-					//'post_status'   => array('publish'),
-					'fields'        => 'ids',
-					'posts_per_page'=> -1,
-                    'post_type'     => array('product'),
-					'orderby' => 'title',
-				);
-
-				$the_query = new WP_Query( $args );
-				// The Loop
-				$full_data = array();
-				global $wpdb;
-
-				if( $the_query->have_posts() )
-				{
-					//while ( $the_query->have_posts() ) {
-					//$the_query->the_post();
-					foreach ($the_query->posts as $product_id) {
-
-						//$the_query->post->ID = $product_id
-
-						$single_product = array();
-						$product = get_product($product_id);
-						if(empty($product) ) {
-							continue;
-						}
-						$single_product['product_id'] = $product_id;
-						//$single_product['product_id'] = $product->get_id();
-
-						$post_categories = wp_get_post_terms($product_id, $taxonomy = 'product_cat');
-						$cat = ''; $ii = 0;
-						foreach((array)$post_categories as $post_category):
-							if($ii > 0){$cat .= ',';}
-							//$cat .= $post_category->name;
-							$cat .= $post_category->term_id;
-							$ii++;
-						endforeach;
-						$single_product['category_ids'] = $cat;
-						$single_product['product_name'] = $product->post->post_title;
-						$single_product['short_description'] = $product->post->post_excerpt;
-						$single_product['price'] = get_post_meta($product_id, '_price', true);
-
-
-						$single_product['images'] = $this->get_images( $product );
-
-						$stock_status = get_post_meta($product_id, '_stock_status', true);
-						$single_product['stock_status'] = $stock_status=='instock'?'IN_STOCK':'OUT_OF_STOCK';
-
-
-						$full_data[] = $single_product;
-					}
-
-
-				}
-
-					//echo "<pre>"; var_export($full_data); echo "</pre>";
-					echo  json_encode($full_data);
-					exit;
-		}
 
 	public function csvexport() {
 		$apikey = (string)get_option( 'relevatracking_api_key' );
@@ -335,7 +270,9 @@ class Relevatracking_Public {
 
 				$single_product['name'] = $product->get_name();
 				$single_product['descriptionShort'] = $product->get_short_description();
-				$single_product['descriptionLong'] = $product->get_description();
+				//$single_product['descriptionLong'] = $product->get_description();
+				$single_product['descriptionLong'] = '';
+
 
 				$single_product['price'] = wc_get_price_including_tax( $product, array('price' => $product->get_regular_price() ) );
 				//number_format( floatval( get_post_meta( $product_id, '_regular_price', true ) ), 2, '.', '' );
@@ -520,6 +457,13 @@ class Relevatracking_Public {
 
 	// Add tracking for pages:
 	public function relevatracking() {
+		/**
+		 * Don't initialize the plugin when WooCommerce is not active.
+		 */
+		if ( ! class_exists( 'WooCommerce', false ) ) {
+			return;
+		}
+
 		// is there any option client_id
 		if($this->client_id) {
 			// FRONT_PAGE
@@ -528,8 +472,12 @@ class Relevatracking_Public {
 			$this->retargeting_category();
 			// PRODUCT
 			$this->retargeting_product();
+			// PRODUCT
+			$this->retargeting_cart();			
 			// ORDER SUCCESS PAGE
 			$this->retargeting_confirmation();
+			// ANY OTHER PAGE
+			$this->retargeting_other();
 		}
 	}
 
@@ -558,6 +506,15 @@ class Relevatracking_Public {
 		 }
 		}
 	}
+
+    // CATEGORY PAGE
+	public function retargeting_cart() {
+		// URL:  https://pix.hyj.mobi/rt?t=d&action=w&cid=CLIENT_ID
+		if (is_cart() ) {
+			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=w&cid='.$this->client_id;
+			echo $this->render( 'front-page' );         
+		}
+	}	
 
 	// PRODUCT PAGE
 	public function retargeting_product() {
@@ -596,6 +553,13 @@ class Relevatracking_Public {
 		}
 	}
 
+	public function retargeting_other() {
+		if(!is_front_page() && !(function_exists('is_product_category') && is_product_category()) && !is_product() && !is_order_received_page() && !is_cart()) {
+			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=s&cid='.$this->client_id;
+			echo $this->render( 'front-page' );			
+		}
+	}
+
 	protected $order_id ;
 	protected $products_name = array();
 	protected $product_ids = array();
@@ -608,6 +572,7 @@ class Relevatracking_Public {
 		//wc_order_59576109b13fa
 		if($this->order_id) {
 		$order = new \WC_Order( $this->order_id );
+		$this->order_id = $order->get_order_number();
 		$this->order_total = number_format( (float) $order->get_total() - $order->get_total_tax() - $order->get_total_shipping(), wc_get_price_decimals(), '.', '' );
 		foreach ( $order->get_items() as $item ) {
 
