@@ -16,7 +16,7 @@
  * Plugin Name:       releva.nz
  * Plugin URI:        https://releva.nz
  * Description:       Technology for personalized advertising
- * Version:           2.0.6
+ * Version:           2.1.1
  * Author:            releva.nz
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -29,9 +29,11 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 //check a plugin (WooCommerce) is active?
-$all_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+$all_plugins = (!is_multisite()) ? (array) get_option('active_plugins', array()) : (array) get_site_option('active_sitewide_plugins', array());
 
-if (!stripos(implode($all_plugins), 'woocommerce.php')) {
+$result = implode($all_plugins) . implode(',',array_keys($all_plugins));
+
+if (!stripos($result, 'woocommerce.php')) {
 	add_action( 'admin_notices', 'relevatracking_render_wc_inactive_notice' );
 	return;
 }
@@ -45,7 +47,7 @@ function relevatracking_render_wc_inactive_notice() {
 
 	$message = sprintf(
 		/* translators: %1$s and %2$s are <strong> tags. %3$s and %4$s are <a> tags */
-		__( '%1$sReleva Tracking is inactive%2$s as it requires WooCommerce. Please %3$sactivate WooCommerce version 2.4.13 or newer%4$s', 'relevatracking' ),
+		__( '%1$sreleva.nz is inactive%2$s as it requires WooCommerce. Please %3$sactivate WooCommerce version 2.4.13 or newer%4$s', 'relevatracking' ),
 		'<strong>',
 		'</strong>',
 		'<a href="' . admin_url( 'plugins.php' ) . '">',
@@ -59,8 +61,9 @@ function relevatracking_render_wc_inactive_notice() {
  * The code that runs during plugin activation.
  * This action is documented in includes/class-relevatracking-activator.php
  */
-function activate_relevatracking() {
+function activate_relevatracking($networkwide) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-relevatracking-activator.php';
+
 	Relevatracking_Activator::activate();
 }
 

@@ -2,7 +2,7 @@
 Contributors: relevanz
 Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
 Requires at least: 3.0.1
-Tested up to: 5.7
+Tested up to: 6.0.0
 Requires PHP: 5.2
 Stable tag: trunk
 License: GPLv2 or later
@@ -52,3 +52,14 @@ Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://he
 1. Alle Statistiken auf einen Blick. Sehen Sie Ihre Erfolge transparent direkt im Plugin.
 2. Tarif Informationen und die direkte Einstellung ihres täglichen Werbebudgets mit einem Klick.
 3. Auch grafisch aufbereitet, sehen Sie unmittelbare Ausschläge.
+
+== Changelog ==
+
+= 2.1.0 =
+* update WooCommerce function calls which are deprecated and gonna be removed in the future
+* adjust conversion tracking to exclude tax and shipping cost
+
+= 2.1.1 =
+* improved multisite support
+* improve conversion tracking
+* support for Wordpress 6
