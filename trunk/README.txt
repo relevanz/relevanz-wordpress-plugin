@@ -63,3 +63,9 @@ Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://he
 * improved multisite support
 * improve conversion tracking
 * support for Wordpress 6
+
+= 2.1.2 =
+* improve product export performance
+
+= 2.1.3 =
+* add pagination for large product exports for better performance

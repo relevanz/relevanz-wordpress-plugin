@@ -208,12 +208,21 @@ class Relevatracking_Public {
 		$client_id = (string)get_option( 'relevatracking_client_id' );
 		$auth = isset($_GET['auth'])?$_GET['auth']:'';
 		$page = isset($_GET['page'])?$_GET['page']:0;
+		$limit = isset($_GET['limit'])?$_GET['limit']:500;
 
 		if( $auth != md5( $apikey.':'.$client_id ) )
 		{
 			exit;
 		}
 
+		$args = array( 
+			'status' => 'publish', 
+			'limit' => -1, 
+			'orderby' => 'id', 
+			'order' => 'asc'
+		);
+
+		/*
 		$args = array(
 			'post_status'   => array('publish'),
 			'fields'        => 'ids',
@@ -222,13 +231,21 @@ class Relevatracking_Public {
 			'orderby' => 'id',
 			'order' => 'asc',
 		);
+		*/
+
 		if( $page > 0 )
 		{
-			$args['posts_per_page'] = 2500;
-			$args['paged'] = $page;
+			$args['limit'] = $limit;
+			$args['page'] = $page;
 		}
 
-		$the_query = new WP_Query( $args );
+		$products = wc_get_products( $args );
+
+		if(count($products) == 0) {
+			header('HTTP/1.0 404 Not Found');
+        	exit; 
+		}
+
 		// The Loop
 		$numProducts = 0;
 		global $wpdb;
@@ -242,12 +259,11 @@ class Relevatracking_Public {
 		$header = ['id','categoryIds','name','descriptionShort','descriptionLong','price','priceOffer','link','image','lastUpdate'];
 		fputcsv($op, $header, ',', '"');
 
-		if( $the_query->have_posts() )
-		{
+
 			//while ( $the_query->have_posts() ) {
 			//$the_query->the_post();
-			foreach ($the_query->posts as $product_id) {
-
+			foreach ($products as $p) {
+				$product_id = $p->id;
 				//$the_query->post->ID = $product_id
 
 				$single_product = array();
@@ -293,8 +309,6 @@ class Relevatracking_Public {
 				fputcsv( $op, $single_product, ',', '"' );
 			}
 
-
-		}
 		fclose($op);
 
 		echo ob_get_clean();
@@ -484,15 +498,22 @@ class Relevatracking_Public {
 
 	// FRONT PAGE Index page
 	public function retargeting_front_page() {
+		$user_id = get_current_user_id();
+
    // URL:  https://pix.hyj.mobi/rt?t=d&action=s&cid=CLIENT_ID
 		if ( is_front_page() ) {
 			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=s&cid='.$this->client_id;
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 			echo $this->render( 'front-page' );
 		}
 	}
 
     // CATEGORY PAGE
 	public function retargeting_category() {
+		$user_id = get_current_user_id();
+
 		// URL:  https://pix.hyj.mobi/rt?t=d&action=c&cid=CLIENT_ID&id=CATEGORY_ID
 		//echo "<pre>is_product_taxonomy"; var_export(is_product_taxonomy() ); echo "</pre>";
 		if ( function_exists('is_product_category') && is_product_category() ) {
@@ -502,6 +523,9 @@ class Relevatracking_Public {
 		 if(!empty($cat) && is_object($cat)) {
 			$id = $cat->term_id;
 			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=c&cid='.$this->client_id.'&id='.$id;
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 			echo $this->render( 'front-page' );
 		 }
 		}
@@ -509,15 +533,22 @@ class Relevatracking_Public {
 
     // CATEGORY PAGE
 	public function retargeting_cart() {
+		$user_id = get_current_user_id();
+
 		// URL:  https://pix.hyj.mobi/rt?t=d&action=w&cid=CLIENT_ID
 		if (is_cart() ) {
 			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=w&cid='.$this->client_id;
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 			echo $this->render( 'front-page' );         
 		}
 	}	
 
 	// PRODUCT PAGE
 	public function retargeting_product() {
+		$user_id = get_current_user_id();
+
     //URL:  https://pix.hyj.mobi/rt?t=d&action=p&cid=CLIENT_ID&id=PRODUCT_ID
 		if ( is_product() ) {
 			global $product;
@@ -526,6 +557,9 @@ class Relevatracking_Public {
 			$id = get_the_ID();
 			}
 			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=p&cid='.$this->client_id.'&id='.$id;
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 			echo $this->render( 'front-page' );
 		}
 	}
@@ -533,6 +567,7 @@ class Relevatracking_Public {
 
 	// Order Success page
 	public function retargeting_confirmation() {
+		$user_id = get_current_user_id();
 /*
     URL:  https://d.hyj.mobi/convNetw?cid=CLIENT_ID&orderId=ORDER_ID&amount=ORDER_TOTAL&eventName=ARTILE_ID1,ARTILE_ID2,ARTILE_ID3&network=relevanz
 */
@@ -546,6 +581,9 @@ class Relevatracking_Public {
 			}
 
 			$this->url_js='https://d.hyj.mobi/convNetw?cid='.$this->client_id.'&orderId='.$this->order_id.'&amount='.$this->order_total.'&eventName='.$eventname.'&network=relevanz';
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 
 			//echo "<pre>"; var_export($this->url_js); echo "</pre>";
 			//exit;
@@ -554,8 +592,13 @@ class Relevatracking_Public {
 	}
 
 	public function retargeting_other() {
+		$user_id = get_current_user_id();
+
 		if(!is_front_page() && !(function_exists('is_product_category') && is_product_category()) && !is_product() && !is_order_received_page() && !is_cart()) {
 			$this->url_js='https://pix.hyj.mobi/rt?t=d&action=s&cid='.$this->client_id;
+			if($user_id != 0) {
+				$this->url_js .= '&custid='.$user_id; 
+			}
 			echo $this->render( 'front-page' );			
 		}
 	}
