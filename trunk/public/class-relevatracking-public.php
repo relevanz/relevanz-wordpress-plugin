@@ -58,6 +58,8 @@ class Relevatracking_Public {
 		add_action( 'releva_csvexport', array( $this, 'csvexport' ) );
 		add_action( 'releva_callback', array( $this, 'callback' ) );
 
+
+		add_action('woocommerce_before_thankyou', array( $this, 'retargeting_confirmation' ), 40);
 	}
 
 	//const RELEVATRC_KEY_URL = 'http://api.hyj.mobi/user/get';
@@ -104,8 +106,6 @@ class Relevatracking_Public {
 		}
 
 	}
-
-
 
 	public function releva_init_action(){
 		//releva_action=jsonexport
@@ -489,12 +489,12 @@ class Relevatracking_Public {
 			// PRODUCT
 			$this->retargeting_cart();			
 			// ORDER SUCCESS PAGE
-			$this->retargeting_confirmation();
+			//$this->retargeting_confirmation();
+
 			// ANY OTHER PAGE
 			$this->retargeting_other();
 		}
 	}
-
 
 	// FRONT PAGE Index page
 	public function retargeting_front_page() {
@@ -566,13 +566,11 @@ class Relevatracking_Public {
 
 
 	// Order Success page
-	public function retargeting_confirmation() {
+	public function retargeting_confirmation($order_id) {
 		$user_id = get_current_user_id();
 /*
     URL:  https://d.hyj.mobi/convNetw?cid=CLIENT_ID&orderId=ORDER_ID&amount=ORDER_TOTAL&eventName=ARTILE_ID1,ARTILE_ID2,ARTILE_ID3&network=relevanz
-*/
-		if ( is_order_received_page() ) {
-
+*/	
 			$this->load_confirmation_order_id();
 			$eventname='';
 			if(count($this->product_ids)) {
@@ -584,12 +582,9 @@ class Relevatracking_Public {
 			if($user_id != 0) {
 				$this->url_js .= '&custid='.$user_id; 
 			}
-
-			//echo "<pre>"; var_export($this->url_js); echo "</pre>";
-			//exit;
-			echo $this->render( 'front-page' );
-		}
+			wp_enqueue_script('relevanz-confirmation', $this->url_js, array(), null, true);
 	}
+	
 
 	public function retargeting_other() {
 		$user_id = get_current_user_id();

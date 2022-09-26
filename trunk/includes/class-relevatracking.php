@@ -69,7 +69,7 @@ class Relevatracking {
 	public function __construct() {
 
 		$this->plugin_name = 'relevatracking';
-		$this->version = '2.1.3';
+		$this->version = '2.1.4';
 
 		$this->load_dependencies();
 		$this->set_locale();
