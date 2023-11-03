@@ -106,12 +106,22 @@ class Relevatracking_Admin
     public function register_settings()
     {
         foreach ($this->options as $option) {
-            register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, 'api_opt_validate'));
+            if($option['name'] === 'api_key') {
+                register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, 'api_opt_validate'));
+            } else {
+                register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, 'store_setting'));
+            }
         }
     }
 
+    public function store_setting($input)
+    {
+        return $input;
+    }    
+
     public function api_opt_validate($input)
     {
+
         $api_key_post = sanitize_text_field($this->butler_post('relevatracking_api_key'));
 
         if ($api_key_post) {
@@ -168,6 +178,15 @@ class Relevatracking_Admin
         $option['hint'] = __('Please do not forget to enter your API Key', $this->plugin_name);
         $option['value'] = get_option($option['id']);
         $this->options[$option['id']] = $option;
+
+        $option2 = array();
+        $option2['name'] = 'additional_html';
+        $option2['id'] = $this->get_id() . '_' . $option2['name'];
+        $option2['type'] = 'textarea';
+        $option2['label'] = __('Additional HTML', $this->plugin_name);
+        $option2['hint'] = __('', $this->plugin_name);
+        $option2['value'] = get_option($option2['id']);
+        $this->options[$option2['id']] = $option2;        
     }
 
     public function add_admin_menu_item()
@@ -175,25 +194,23 @@ class Relevatracking_Admin
 
         // Add your own main menu item
         // Releva tracking
-        add_menu_page(
+         add_menu_page(
             __('releva.nz', $this->plugin_name),
             __('releva.nz', $this->plugin_name),
             'manage_options',
             $this->get_id() . '_menu',
-            array($this, 'render_admin_menu'),
+            array($this, 'render_admin_chart'),
             'dashicons-screenoptions',
             self::MENU_POSITION
         );
 
-        add_submenu_page($this->get_id() . '_menu', __('Settings', $this->plugin_name), __('Settings', $this->plugin_name), 'manage_options', $this->get_id() . '_menu');
-
         add_submenu_page(
             $this->get_id() . '_menu',
-            __('releva.nz', $this->plugin_name),
-            __('releva.nz', $this->plugin_name),
+            __('Settings', $this->plugin_name),
+            __('Settings', $this->plugin_name),
             'manage_options',
-            $this->get_id() . '_chart',
-            array($this, 'render_admin_chart')
+            $this->get_id() . '_settings',
+            array($this, 'render_admin_menu')
         );
     }
 
