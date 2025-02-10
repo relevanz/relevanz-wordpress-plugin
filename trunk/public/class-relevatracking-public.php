@@ -137,13 +137,17 @@ class Relevatracking_Public
 
 	public function getCallbacks()
 	{
-		return [
+		$callbacks = [
 			'callback' => [
-				'url' => site_url('?releva_action=callback'),
-				'parameters' => [],
+				'url' => site_url( '?releva_action=callback' ),
+				'parameters' => [], // Always include 'parameters', even if empty
 			],
-			'export' => [
-				'url' => site_url('?releva_action=csvexport'),
+		]; // Initialize with the default 'callback'
+	
+	
+		if ( class_exists( 'WooCommerce', false ) ) {
+			$callbacks['export'] = [ // Add 'export' only if WooCommerce is active
+				'url' => site_url( '?releva_action=csvexport' ),
 				'parameters' => [
 					'page' => [
 						'type' => 'integer',
@@ -153,8 +157,10 @@ class Relevatracking_Public
 						],
 					],
 				],
-			],
-		];
+			];
+		}
+	
+		return $callbacks;
 	}
 
 	public function callback()
@@ -174,13 +180,15 @@ class Relevatracking_Public
 		header('Content-Type: application/json');
 
 		$wc_version = '';
+		$system = 'WordPress';
 		if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
 			$wc_version = WC_VERSION;
+			$system = 'WooCommerce';
 		}
 		$callback = [
 			'plugin-version' => $this->version,
 			'shop' => [
-				'system' => 'WooCommerce',
+				'system' => $system,
 				'version' => $wc_version,
 			],
 			'environment' => $this->getServerEnvironment(),
@@ -195,6 +203,11 @@ class Relevatracking_Public
 
 	public function csvexport()
 	{
+		if (!class_exists('WooCommerce', false)) {
+			wp_send_json_success();
+			return;
+		}		
+
 		$apikey = (string)get_option('relevatracking_api_key');
 		$client_id = (string)get_option('relevatracking_client_id');
 
@@ -243,8 +256,14 @@ class Relevatracking_Public
 
 			$single_product = array();
 			$product = wc_get_product($product_id);
-
+			
 			if (empty($product)) {
+				continue;
+			}
+
+			// skip products not available
+			$available = $product->get_availability();
+			if(is_array($available) && in_array('out-of-stock', $available)) {
 				continue;
 			}
 			
@@ -425,23 +444,25 @@ class Relevatracking_Public
 	// Add tracking for pages:
 	public function relevatracking()
 	{
-		/**
-		 * Don't initialize the plugin when WooCommerce is not active.
-		 */
-		if (!class_exists('WooCommerce', false)) {
-			return;
-		}
-
 		// is there any option client_id
 		if ($this->client_id) {
 			$additional_html = (string)get_option('relevatracking_additional_html');
 			if(!$additional_html) {
-				$this->additional_html = '<script type="text/javascript">var relevanzAppForcePixel = true;</script>';
+				$this->additional_html = 'var relevanzAppForcePixel = true;';
 			} else {
 				$this->additional_html = $additional_html;
 			}
 			// FRONT_PAGE
 			$this->retargeting_front_page();
+			// ANY OTHER PAGE
+			$this->retargeting_other();			
+
+			/**
+			 * Don't initialize the plugin when WooCommerce is not active.
+			 */
+			if (!class_exists('WooCommerce', false)) {
+				return;
+			}			
 			// CATEGORY
 			$this->retargeting_category();
 			// PRODUCT
@@ -449,8 +470,7 @@ class Relevatracking_Public
 			// PRODUCT
 			$this->retargeting_cart();
 
-			// ANY OTHER PAGE
-			$this->retargeting_other();
+
 		}
 	}
 
@@ -547,7 +567,7 @@ class Relevatracking_Public
 
 		$additional_html = (string)get_option('relevatracking_additional_html');
 		if(!$additional_html) {
-			$this->additional_html = '<script type="text/javascript">var relevanzAppForcePixel = true;</script>';
+			$this->additional_html = 'var relevanzAppForcePixel = true;';
 		} else {
 			$this->additional_html = $additional_html;
 		}
@@ -558,6 +578,15 @@ class Relevatracking_Public
 	public function retargeting_other()
 	{
 		$user_id = get_current_user_id();
+
+		if (!class_exists('WooCommerce', false)) {
+			$url = 'https://pix.hyj.mobi/rt?t=d&action=s&cid=' . $this->client_id;
+			if ($user_id != 0) {
+				$url .= '&custid=' . $user_id;
+			}
+			$this->addTrackingCode($url);			
+			return;
+		}			
 
 		if (!is_front_page() && !(function_exists('is_product_category') && is_product_category()) && !is_product() && !is_order_received_page() && !is_cart()) {
 			$url = 'https://pix.hyj.mobi/rt?t=d&action=s&cid=' . $this->client_id;

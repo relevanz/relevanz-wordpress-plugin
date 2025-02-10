@@ -15,9 +15,6 @@
 <div id="RelevaWrap" class="wrap">
 
 	<h2><?php echo esc_html( get_admin_page_title() ) ?></h2>
-	<p>
-		<h3><?php _e( 'Releva Chart', $this->plugin_name) ?></h3>
-	</p>
 <div id="RelevaChart" class="stat-block"></div>
 <!--  scrolling="no" frameborder="0" -->
 <iframe  style="border: 0px; width: 100%;" id="gopolegelcontent"></iframe>

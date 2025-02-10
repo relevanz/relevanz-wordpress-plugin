@@ -16,7 +16,7 @@
  * Plugin Name:       releva.nz
  * Plugin URI:        https://releva.nz
  * Description:       Technology for personalized advertising
- * Version:           2.1.5
+ * Version:           2.1.8
  * Author:            releva.nz
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -33,20 +33,15 @@ $all_plugins = (!is_multisite()) ? (array) get_option('active_plugins', array())
 
 $result = implode($all_plugins) . implode(',',array_keys($all_plugins));
 
-if (!stripos($result, 'woocommerce.php')) {
-	add_action( 'admin_notices', 'relevatracking_render_wc_inactive_notice' );
-	return;
-}
-
 /**
  * Renders a notice when WooCommerce version is outdated
  *
  * @since 2.3.1
  */
 function relevatracking_render_wc_inactive_notice() {
-
+/*
+Removed the notice as it is not necessary
 	$message = sprintf(
-		/* translators: %1$s and %2$s are <strong> tags. %3$s and %4$s are <a> tags */
 		__( '%1$sreleva.nz is inactive%2$s as it requires WooCommerce. Please %3$sactivate WooCommerce version 2.4.13 or newer%4$s', 'relevatracking' ),
 		'<strong>',
 		'</strong>',
@@ -55,6 +50,7 @@ function relevatracking_render_wc_inactive_notice() {
 	);
 
 	printf( '<div class="error"><p>%s</p></div>', $message );
+	*/
 }
 
 /**

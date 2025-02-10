@@ -140,8 +140,6 @@ class Relevatracking_Admin
                 add_settings_error($this->plugin_name, 'api_key', __('Settings saved successfully!', $this->plugin_name), 'updated');
                 return sanitize_text_field($input);
             } else {
-                //$mess = __('Error saving settings', $this->plugin_name);
-                //$mess .= ".\n\t" . __('Invalid Key!', $this->plugin_name);
 				$mess = __('Invalid Key!', $this->plugin_name).' ( '.$api_key_post.' )';
                 add_settings_error($this->plugin_name, 'api_key', $mess, 'error');
                 //Return $compare;
@@ -160,16 +158,6 @@ class Relevatracking_Admin
     {
         $option = array();
 
-        /*
-        $option['name' ] = 'client_id';
-        $option['id'   ] = $this->get_id() . '_' . $option['name'];
-        $option['type' ] = 'text';
-        $option['label'] = __( 'Client ID', $this->plugin_name);
-        $option['hint']  = __( 'Please do not forget to enter your client ID' , $this->plugin_name);
-        $option['value'] = get_option( $option['id'] );
-        $this->options[ $option['id'] ] = $option;
-         */
-
         //relevatracking_api_key
         $option['name'] = 'api_key';
         $option['id'] = $this->get_id() . '_' . $option['name'];
@@ -184,7 +172,7 @@ class Relevatracking_Admin
         $option2['id'] = $this->get_id() . '_' . $option2['name'];
         $option2['type'] = 'textarea';
         $option2['label'] = __('Additional HTML', $this->plugin_name);
-        $option2['hint'] = __('', $this->plugin_name);
+        $option2['hint'] = __('Enter additional html e.g. for Consent Plugin Integration', $this->plugin_name);
         $option2['value'] = get_option($option2['id']);
         $this->options[$option2['id']] = $option2;        
     }
@@ -241,10 +229,10 @@ class Relevatracking_Admin
 			echo '<div style="margin: 25px 20px 0 2px;" id="setting-error-api_key" class="error settings-error"><p><strong>' .__('Invalid Key!', $this->plugin_name) . '</strong></p></div>' . "\n";
 
 
-			$dialog_received = __('If you are already registered and have received our key, enter it in the following:', $this->plugin_name);
-			$dialog_received .=' <a href="admin.php?page=relevatracking_menu"><strong>' .__('Settings', $this->plugin_name) . '</strong></a>';
+			$dialog_received = __('If you already registered, you can find your API Key in your account and enter it here:', $this->plugin_name);
+			$dialog_received .=' <a href="admin.php?page=relevatracking_settings"><strong>' .__('Settings', $this->plugin_name) . '</strong></a>';
 
-            $dialog_register = __('<a href="https://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name);
+            $dialog_register = __('<a href="https://releva.nz" target="_blank">Not registered yet? Get started now!</a>', $this->plugin_name);
 
 			echo '<div style="margin: 25px 20px 0 2px;" id="setting-error-api_key" class="update-nag"><p>' .$dialog_received . '</p><p>' .$dialog_register . '</p></div>' . "\n";
 			}
@@ -481,11 +469,11 @@ class Relevatracking_Admin
 
         wp_localize_script($this->plugin_name, $this->plugin_name . '_opt', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'dialog_received' => __('If you are already registered and have received our key, enter it in the following:', $this->plugin_name),
-            'dialog_register' => __('<a href="https://releva.nz" target="_blank">Still unable to register. Now catch up</a>', $this->plugin_name),
+            'dialog_received' => __('If you already registered, you can find your API Key in your account and enter it here:', $this->plugin_name),
+            'dialog_register' => __('<a href="https://releva.nz" target="_blank">Not registered yet? Get started now!</a>', $this->plugin_name),
             'dialog_invalid' => __('Invalid Key!', $this->plugin_name),
             'dialog_ok' => __('Send', $this->plugin_name),
-            'settings_saved' => __('Releva Settings Saved', $this->plugin_name),
+            'settings_saved' => __('Settings successfully saved!', $this->plugin_name),
             'settings_error' => __('Error saving settings', $this->plugin_name),
         ));
     }

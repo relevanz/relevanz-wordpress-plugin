@@ -1,118 +1,96 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"Project-Id-Version: RelevaTracking\n"
-"POT-Creation-Date: 2017-11-24 12:27+0300\n"
-"PO-Revision-Date: 2017-07-01 12:37+0300\n"
+"Project-Id-Version: releva.nz\n"
+"POT-Creation-Date: 2025-02-04 18:46+0100\n"
+"PO-Revision-Date: 2025-02-04 18:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.11\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.5\n"
 "X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: relevatracking.php\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
-"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: *.js\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
-#: admin/class-relevatracking-admin.php:116
-msgid "API Key"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:117
-msgid "Please do not forget to enter your API Key"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:128
-#: admin/class-relevatracking-admin.php:129
-msgid "Releva tracking"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:139
 #: admin/class-relevatracking-admin.php:140
-msgid "releva.nz"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:323
-msgid ""
-"If you are already registered and have received our key, enter it in the "
-"following:"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:324
-msgid ""
-"<a href=\"http://releva.nz\" target=\"_blank\">Still unable to register. "
-"Now catch up</a>"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:325
-msgid "Invalid Key!"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:326
-msgid "Send"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:327
-msgid "Releva Settings Saved"
-msgstr ""
-
-#: admin/class-relevatracking-admin.php:328
-msgid "Error saving settings"
-msgstr ""
-
-#: admin/partials/admin-chart.php:23
-msgid "Releva Chart"
-msgstr ""
-
-#: admin/partials/admin-menu.php:20
-msgid "Settings"
-msgstr ""
-
-#: admin/partials/admin-menu.php:23
-msgid "Link to export products"
-msgstr ""
-
-#: admin/partials/admin-notices.php:10
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: includes/class-wc-api-products.php:147
-msgid "You do not have permission to read the products count"
+#: admin/class-relevatracking-admin.php:143
+#: admin/class-relevatracking-admin.php:150
+#: admin/class-relevatracking-admin.php:229
+#: admin/class-relevatracking-admin.php:474
+msgid "Invalid Key!"
 msgstr ""
 
-#: includes/class-wc-api-products.php:455
-#: includes/class-wc-api-products.php:456
-msgid "Placeholder"
+#: admin/class-relevatracking-admin.php:165
+msgid "API Key"
 msgstr ""
 
-#: relevatracking.php:49
-#, php-format
-msgid ""
-"%1$sReleva Tracking is inactive%2$s as it requires WooCommerce. Please "
-"%3$sactivate WooCommerce version 2.4.13 or newer%4$s"
+#: admin/class-relevatracking-admin.php:166
+msgid "Please do not forget to enter your API Key"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:174
+msgid "Additional HTML"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:175
+msgid "Enter additional html e.g. for Consent Plugin Integration"
 msgstr ""
 
 #. Plugin Name of the plugin/theme
-msgid "RelevaTracking iframe"
+#. Author of the plugin/theme
+#: admin/class-relevatracking-admin.php:186
+#: admin/class-relevatracking-admin.php:187 admin/partials/admin-menu.php:15
+msgid "releva.nz"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:197
+#: admin/class-relevatracking-admin.php:198
+#: admin/class-relevatracking-admin.php:233 admin/partials/admin-menu.php:20
+msgid "Settings"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:232
+#: admin/class-relevatracking-admin.php:472
+msgid ""
+"If you already registered, you can find your API Key in your account and "
+"enter it here:"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:235
+#: admin/class-relevatracking-admin.php:473
+msgid ""
+"<a href=\"https://releva.nz\" target=\"_blank\">Not registered yet? Get "
+"started now!</a>"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:475
+msgid "Send"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:476 admin/partials/admin-notices.php:10
+msgid "Settings successfully saved!"
+msgstr ""
+
+#: admin/class-relevatracking-admin.php:477
+msgid "Error saving settings"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-#. Author URI of the plugin/theme
 msgid "https://releva.nz"
 msgstr ""
 
 #. Description of the plugin/theme
-msgid ""
-"RelevaTracking iframe plugin for adding tracking code to site footer "
-"section."
-msgstr ""
-
-#. Author of the plugin/theme
-msgid "oppo"
+msgid "Technology for personalized advertising"
 msgstr ""
