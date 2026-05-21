@@ -74,21 +74,26 @@ class Relevatracking_Admin
     const RELEVATRC_KEY_URL = 'https://backend.releva.nz/v1/campaigns/get';
 
     // self::checkRelevaUser($apikey);
-    public static function checkRelevaUser($apikey = '', $url = '', $timeout = 5)
+    public static function checkRelevaUser($apikey = '', $url = '', $timeout = 10)
     {
         $username = null;
         if (!$url) {
             $url = self::RELEVATRC_KEY_URL;
         }
-        $queryParams['apikey'] = $apikey;
+        $apikey = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$apikey);
+        if (!$apikey) {
+            return null;
+        }
 
+        $queryParams = array(
+            'apikey'       => $apikey,
+            'callback-url' => site_url('?releva_action=callback'),
+        );
         $connectUrl = $url . '?' . http_build_query($queryParams);
-        $data = self::getUrl($connectUrl, 5);
+        $data = self::getUrl($connectUrl, $timeout);
 
         $response = self::arrayGetValue($data, 'response');
         $response = json_decode($response);
-
-        //echo "<pre>"; var_export($response); echo "</pre>";
 
         if (!empty($response) && is_object($response) && isset($response->user_id)) {
             $username = $response->user_id;

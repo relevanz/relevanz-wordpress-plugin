@@ -1,0 +1,58 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: releva.nz\n"
+"POT-Creation-Date: 2025-02-04 18:46+0100\n"
+"PO-Revision-Date: 2026-05-20 12:00+0000\n"
+"Last-Translator: releva.nz <tec@releva.nz>\n"
+"Language-Team: English (United States)\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: relevanz/1.0\n"
+
+msgid "Settings saved successfully!"
+msgstr "Settings saved successfully!"
+
+msgid "Invalid Key!"
+msgstr "Invalid Key!"
+
+msgid "API Key"
+msgstr "API Key"
+
+msgid "Please do not forget to enter your API Key"
+msgstr "Please do not forget to enter your API Key"
+
+msgid "Additional HTML"
+msgstr "Additional HTML"
+
+msgid "Enter additional html e.g. for Consent Plugin Integration"
+msgstr "Enter additional html e.g. for Consent Plugin Integration"
+
+msgid "releva.nz"
+msgstr "releva.nz"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "If you already registered, you can find your API Key in your account and enter it here:"
+msgstr "If you already registered, you can find your API Key in your account and enter it here:"
+
+msgid "<a href=\"https://releva.nz\" target=\"_blank\">Not registered yet? Get started now!</a>"
+msgstr "<a href=\"https://releva.nz\" target=\"_blank\">Not registered yet? Get started now!</a>"
+
+msgid "Send"
+msgstr "Send"
+
+msgid "Settings successfully saved!"
+msgstr "Settings successfully saved!"
+
+msgid "Error saving settings"
+msgstr "Error saving settings"
+
+msgid "https://releva.nz"
+msgstr "https://releva.nz"
+
+msgid "Technology for personalized advertising"
+msgstr "Technology for personalized advertising"
