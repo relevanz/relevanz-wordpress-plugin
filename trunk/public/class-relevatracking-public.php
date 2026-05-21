@@ -885,6 +885,13 @@ class Relevatracking_Public
 		}
 
 		$this->order_id = $order->get_order_number();
+		// Conversion `amount` per dev-guide §10.7.1: net product revenue,
+		// excluding tax and shipping. Formula expands to:
+		//   amount = items_net + fees_net − discount
+		// because get_total() is the gross grand total, get_total_tax() covers
+		// items+shipping+fees tax, and get_total_shipping() is shipping net.
+		// (Fee inclusion is a known edge case — most WC shops don't use fees;
+		// strict fee exclusion is on the v2.3.0 backlog.)
 		$this->order_total = number_format(
 			(float)$order->get_total() - (float)$order->get_total_tax() - (float)$order->get_total_shipping(),
 			function_exists('wc_get_price_decimals') ? wc_get_price_decimals() : 2,
