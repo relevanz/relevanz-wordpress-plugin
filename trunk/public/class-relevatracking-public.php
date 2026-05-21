@@ -178,7 +178,8 @@ class Relevatracking_Public
 		ob_start();
 
 		header('Content-Type: application/json');
-
+		
+		global $wp_version;
 		$wc_version = '';
 		$system = 'WordPress';
 		if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
@@ -190,6 +191,7 @@ class Relevatracking_Public
 			'shop' => [
 				'system' => $system,
 				'version' => $wc_version,
+				'wp_version' => $wp_version
 			],
 			'environment' => $this->getServerEnvironment(),
 			'callbacks' => $this->getCallbacks(),
@@ -446,6 +448,12 @@ class Relevatracking_Public
 	{
 		// is there any option client_id
 		if ($this->client_id) {
+			if (function_exists('is_order_received_page') && is_order_received_page()) {
+				// nextmove fix vanillekiste, outcomment for usage on issues with checkout
+				$this->retargeting_confirmation(0);
+				return;
+			}
+
 			$additional_html = (string)get_option('relevatracking_additional_html');
 			if(!$additional_html) {
 				$this->additional_html = 'var relevanzAppForcePixel = true;';

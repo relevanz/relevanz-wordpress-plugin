@@ -2,7 +2,7 @@
 Contributors: relevanz
 Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
 Requires at least: 3.0.1
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.2
 Stable tag: trunk
 License: GPLv2 or later
@@ -83,3 +83,7 @@ Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://he
 = 2.1.8 =
 * Support to run also on Wordpress only installations
 * Fix translations
+
+= 2.1.9 =
+* Extended support functionality
+* compability with WP 6.8
