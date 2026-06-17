@@ -1,7 +1,15 @@
 (function () {
 	var rlzFired = false;
-	var trackerUrl = (typeof relevanzURL !== "undefined") ? relevanzURL : "";
-	var trackerUrlAnonymous = (typeof relevanzAnonymousURL !== "undefined") ? relevanzAnonymousURL : "";
+
+	// Read globals lazily on every call: a CMP script blocker (e.g. Borlabs)
+	// may keep the inline `relevatracking-js-before` block as type="text/template"
+	// until consent is granted, so these are undefined when the IIFE first runs.
+	function currentTrackerUrl() {
+		return (typeof window.relevanzURL === "string") ? window.relevanzURL : "";
+	}
+	function currentAnonymousUrl() {
+		return (typeof window.relevanzAnonymousURL === "string") ? window.relevanzAnonymousURL : "";
+	}
 
 	function injectTarget() {
 		return document.body || document.head || document.documentElement;
@@ -31,7 +39,7 @@
 		if (rlzFired) { return; }
 		if (window.relevanzAppForcePixel === true
 		    || window.relevanzRetargetingForcePixel === true) {
-			fire(trackerUrl);
+			fire(currentTrackerUrl());
 		}
 	}
 
@@ -55,7 +63,7 @@
 			clearInterval(iv);
 			// 4) anonymous fallback — only set on the order-success page.
 			if (window.relevanzDisableAnonymous !== true) {
-				fire(trackerUrlAnonymous);
+				fire(currentAnonymousUrl());
 			}
 		}
 	}, ivMs);

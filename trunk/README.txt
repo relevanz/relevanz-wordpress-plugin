@@ -4,7 +4,7 @@ Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
 Requires at least: 3.0.1
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: trunk
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,3 +93,6 @@ Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://he
 * Improve overall performance
 * extended product data
 * Tested against WordPress 7.0
+
+= 2.2.1 =
+* Fix pixel not firing after consent when a CMP script blocker (e.g. Borlabs Cookie) unblocks the inline configuration after page load
