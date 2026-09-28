@@ -10,26 +10,37 @@
 	function currentAnonymousUrl() {
 		return (typeof window.relevanzAnonymousURL === "string") ? window.relevanzAnonymousURL : "";
 	}
+	// Order-success page only: the consent-only retargeting pixel (action=t).
+	function currentOrderTrackerUrl() {
+		return (typeof window.relevanzOrderTrackerURL === "string") ? window.relevanzOrderTrackerURL : "";
+	}
 
 	function injectTarget() {
 		return document.body || document.head || document.documentElement;
 	}
 
-	function fire(url) {
-		if (rlzFired || !url) { return; }
+	// Fires the given pixel URLs together, at most once per page load.
+	function fire(urls) {
+		var list = [];
+		for (var i = 0; i < urls.length; i++) {
+			if (urls[i]) { list.push(urls[i]); }
+		}
+		if (rlzFired || !list.length) { return; }
 		var target = injectTarget();
 		if (!target) {
 			// DOM not ready yet — retry once DOMContentLoaded fires.
 			if (document.addEventListener) {
-				document.addEventListener("DOMContentLoaded", function () { fire(url); }, false);
+				document.addEventListener("DOMContentLoaded", function () { fire(list); }, false);
 			}
 			return;
 		}
 		rlzFired = true;
-		var s = document.createElement("script");
-		s.async = true;
-		s.src = url;
-		target.appendChild(s);
+		for (var j = 0; j < list.length; j++) {
+			var s = document.createElement("script");
+			s.async = true;
+			s.src = list[j];
+			target.appendChild(s);
+		}
 		try {
 			window.dispatchEvent(new CustomEvent("relevanz:tags_fired"));
 		} catch (e) { /* older browsers without CustomEvent constructor */ }
@@ -39,7 +50,7 @@
 		if (rlzFired) { return; }
 		if (window.relevanzAppForcePixel === true
 		    || window.relevanzRetargetingForcePixel === true) {
-			fire(currentTrackerUrl());
+			fire([currentTrackerUrl(), currentOrderTrackerUrl()]);
 		}
 	}
 
@@ -63,7 +74,7 @@
 			clearInterval(iv);
 			// 4) anonymous fallback — only set on the order-success page.
 			if (window.relevanzDisableAnonymous !== true) {
-				fire(currentAnonymousUrl());
+				fire([currentAnonymousUrl()]);
 			}
 		}
 	}, ivMs);

@@ -69,7 +69,7 @@ class Relevatracking {
 	public function __construct() {
 
 		$this->plugin_name = 'relevatracking';
-		$this->version = '2.2.1';
+		$this->version = RELEVATRACKING_VERSION;
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -152,16 +152,11 @@ class Relevatracking {
 		$plugin_admin = new Relevatracking_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 
         $this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_admin_menu_item' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'render_admin_notices' );
-
-		//add_action('wp_ajax_my_action', 'add_general_settings');
-		$this->loader->add_action( 'wp_ajax_add_apikey_settings', $plugin_admin, 'add_general_settings' );
-		//$this->loader->add_action( 'wp_ajax_nopriv_add_apikey_settings', $plugin_admin, 'add_general_settings' );
 	}
 
 	/**

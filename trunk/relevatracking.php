@@ -16,7 +16,10 @@
  * Plugin Name:       releva.nz
  * Plugin URI:        https://releva.nz
  * Description:       Technology for personalized advertising
- * Version:           2.2.1
+ * Version:           2.3.0
+ * Requires at least: 4.5
+ * Requires PHP:      7.0
+ * WC tested up to:   11.1
  * Author:            releva.nz
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -28,36 +31,28 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
-//check a plugin (WooCommerce) is active?
-$all_plugins = (!is_multisite()) ? (array) get_option('active_plugins', array()) : (array) get_site_option('active_sitewide_plugins', array());
-
-$result = implode($all_plugins) . implode(',',array_keys($all_plugins));
+/**
+ * Current plugin version — the single source of truth in code (dev guide §15.1);
+ * must match the `Version:` header above.
+ */
+define( 'RELEVATRACKING_VERSION', '2.3.0' );
 
 /**
- * Renders a notice when WooCommerce version is outdated
- *
- * @since 2.3.1
+ * Declare compatibility with WooCommerce HPOS (custom order tables) and the
+ * cart/checkout blocks. Orders are only read through the WC CRUD API.
  */
-function relevatracking_render_wc_inactive_notice() {
-/*
-Removed the notice as it is not necessary
-	$message = sprintf(
-		__( '%1$sreleva.nz is inactive%2$s as it requires WooCommerce. Please %3$sactivate WooCommerce version 2.4.13 or newer%4$s', 'relevatracking' ),
-		'<strong>',
-		'</strong>',
-		'<a href="' . admin_url( 'plugins.php' ) . '">',
-		'&nbsp;&raquo;</a>'
-	);
-
-	printf( '<div class="error"><p>%s</p></div>', $message );
-	*/
-}
+add_action( 'before_woocommerce_init', function () {
+	if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+	}
+} );
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-relevatracking-activator.php
  */
-function activate_relevatracking($networkwide) {
+function activate_relevatracking() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-relevatracking-activator.php';
 
 	Relevatracking_Activator::activate();

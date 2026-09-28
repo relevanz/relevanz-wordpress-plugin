@@ -1,101 +1,141 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: releva.nz\n"
-"POT-Creation-Date: 2025-02-04 18:46+0100\n"
-"PO-Revision-Date: 2025-02-04 18:47+0100\n"
+"Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-02-04 18:46+0100\n"
+"PO-Revision-Date: 2026-09-24 20:00+0200\n"
+"Language: de_DE\n"
 "X-Generator: Poedit 3.5\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: relevatracking.php\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
-"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
-#: admin/class-relevatracking-admin.php:140
+#: admin/class-relevatracking-admin.php:149
+#: admin/class-relevatracking-admin.php:157
 msgid "Settings saved successfully!"
 msgstr "Einstellungen erfolgreich gespeichert!"
 
-#: admin/class-relevatracking-admin.php:143
-#: admin/class-relevatracking-admin.php:150
-#: admin/class-relevatracking-admin.php:229
-#: admin/class-relevatracking-admin.php:474
+#: admin/class-relevatracking-admin.php:167
 msgid "Invalid Key!"
-msgstr "Falsche API Key!"
+msgstr "Ungültiger API-Schlüssel!"
 
-#: admin/class-relevatracking-admin.php:165
+#: admin/class-relevatracking-admin.php:205
 msgid "API Key"
 msgstr "API-Schlüssel"
 
-#: admin/class-relevatracking-admin.php:166
+#: admin/class-relevatracking-admin.php:206
 msgid "Please do not forget to enter your API Key"
 msgstr "Vergiss nicht, deinen API Key einzugeben."
 
-#: admin/class-relevatracking-admin.php:174
+#: admin/class-relevatracking-admin.php:214
 msgid "Additional HTML"
 msgstr "Zusätzliches HTML"
 
-#: admin/class-relevatracking-admin.php:175
+#: admin/class-relevatracking-admin.php:215
 msgid "Enter additional html e.g. for Consent Plugin Integration"
-msgstr ""
-"Gib deinen zusätzlichen HTML Code  ein, z.B. für die Consent Plugin "
-"Integration"
+msgstr "Gib deinen zusätzlichen HTML-Code ein, z.B. für die Consent-Plugin-Integration"
 
-#. Plugin Name of the plugin/theme
-#. Author of the plugin/theme
-#: admin/class-relevatracking-admin.php:186
-#: admin/class-relevatracking-admin.php:187 admin/partials/admin-menu.php:15
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: relevatracking.php
+#: admin/class-relevatracking-admin.php:235
+#: admin/class-relevatracking-admin.php:236
+#: admin/partials/admin-menu.php:19
 msgid "releva.nz"
 msgstr "releva.nz"
 
-#: admin/class-relevatracking-admin.php:197
-#: admin/class-relevatracking-admin.php:198
-#: admin/class-relevatracking-admin.php:233 admin/partials/admin-menu.php:20
+#: admin/class-relevatracking-admin.php:246
+#: admin/class-relevatracking-admin.php:247
+#: admin/class-relevatracking-admin.php:302
+#: admin/partials/admin-menu.php:24
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: admin/class-relevatracking-admin.php:232
-#: admin/class-relevatracking-admin.php:472
-msgid ""
-"If you already registered, you can find your API Key in your account and "
-"enter it here:"
-msgstr ""
-"Wenn du bereits registriert bist, findest du deinen API-Schlüssel in deinem "
-"Account und kannst Ihn hier eingeben:"
+#: admin/class-relevatracking-admin.php:301
+msgid "If you already registered, you can find your API Key in your account and enter it here:"
+msgstr "Wenn du bereits registriert bist, findest du deinen API-Schlüssel in deinem Account und kannst ihn hier eingeben:"
 
-#: admin/class-relevatracking-admin.php:235
-#: admin/class-relevatracking-admin.php:473
-msgid ""
-"<a href=\"https://releva.nz\" target=\"_blank\">Not registered yet? Get "
-"started now!</a>"
-msgstr ""
-"<a href=“https://releva.nz” target=“_blank”>Noch nicht registriert? Jetzt "
-"loslegen!</a>"
+#: admin/class-relevatracking-admin.php:303
+msgid "<a href=\"https://releva.nz\" target=\"_blank\">Not registered yet? Get started now!</a>"
+msgstr "<a href=\"https://releva.nz\" target=\"_blank\">Noch nicht registriert? Jetzt loslegen!</a>"
 
-#: admin/class-relevatracking-admin.php:475
-msgid "Send"
-msgstr "Speichern"
-
-#: admin/class-relevatracking-admin.php:476 admin/partials/admin-notices.php:10
+#: admin/partials/admin-notices.php:10
 msgid "Settings successfully saved!"
 msgstr "Einstellungen erfolgreich gespeichert!"
 
-#: admin/class-relevatracking-admin.php:477
-msgid "Error saving settings"
-msgstr "Fehler beim Speichern der Einstellungen"
-
-#. Plugin URI of the plugin/theme
+#. Plugin URI of the plugin
+#: relevatracking.php
 msgid "https://releva.nz"
 msgstr "https://releva.nz"
 
-#. Description of the plugin/theme
+#. Description of the plugin
+#: relevatracking.php
 msgid "Technology for personalized advertising"
 msgstr "Technologie für personalisierte Kundenansprache!"
+
+#: admin/class-relevatracking-admin.php:144
+msgid "API key removed. Tracking is inactive until a valid key is saved."
+msgstr "API-Schlüssel entfernt. Das Tracking ist inaktiv, bis ein gültiger Schlüssel gespeichert wird."
+
+#: admin/class-relevatracking-admin.php:160
+msgid "Could not reach releva.nz, please retry."
+msgstr "releva.nz ist nicht erreichbar, bitte versuche es erneut."
+
+#. translators: 1: HTTP status code, 2: error message from releva.nz
+#: admin/class-relevatracking-admin.php:164
+#, php-format
+msgid "releva.nz returned an error (HTTP %1$s): %2$s"
+msgstr "releva.nz hat einen Fehler gemeldet (HTTP %1$s): %2$s"
+
+#: admin/class-relevatracking-admin.php:170
+msgid "The previously saved API key is still in use."
+msgstr "Der bisher gespeicherte API-Schlüssel bleibt aktiv."
+
+#: admin/class-relevatracking-admin.php:186
+msgid "You are not allowed to change the Additional HTML (on multisite only network administrators can). The previous value is kept."
+msgstr "Du darfst das zusätzliche HTML nicht ändern (in einer Multisite nur Netzwerk-Administratoren). Der bisherige Wert bleibt erhalten."
+
+#: admin/class-relevatracking-admin.php:223
+msgid "Active"
+msgstr "Aktiv"
+
+#: admin/class-relevatracking-admin.php:224
+msgid "Uncheck to pause tracking without removing the configuration"
+msgstr "Deaktivieren, um das Tracking zu pausieren, ohne die Konfiguration zu entfernen"
+
+#. translators: 1: site name, 2: site URL
+#: admin/class-relevatracking-admin.php:269
+#, php-format
+msgid "Settings for site \"%1$s\" (%2$s). Every site of the network has its own releva.nz configuration."
+msgstr "Einstellungen für die Website \"%1$s\" (%2$s). Jede Website im Netzwerk hat ihre eigene releva.nz-Konfiguration."
+
+#: admin/partials/admin-menu.php:33
+msgid "This API key is also configured on other sites of this network. Every shop needs its own releva.nz API key, otherwise tracking and product data of the shops get mixed up:"
+msgstr "Dieser API-Schlüssel ist auch auf anderen Websites dieses Netzwerks hinterlegt. Jeder Shop braucht einen eigenen releva.nz API-Schlüssel, sonst werden Tracking- und Produktdaten der Shops vermischt:"
+
+#: admin/partials/admin-menu.php:70
+msgid "Campaign ID"
+msgstr "Kampagnen-ID"
+
+#: admin/partials/admin-menu.php:74
+msgid "API key validated"
+msgstr "API-Schlüssel geprüft"
+
+#: admin/partials/admin-menu.php:74
+msgid "API key not validated yet"
+msgstr "API-Schlüssel noch nicht geprüft"
+
+#. translators: %s: date and time of the last callback
+#: admin/partials/admin-menu.php:76
+#, php-format
+msgid "Last call from releva.nz: %s"
+msgstr "Letzter Abruf durch releva.nz: %s"

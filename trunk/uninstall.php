@@ -29,3 +29,21 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
+
+// Dev guide §3.4: remove the configuration on uninstall (no call to releva.nz).
+// Options are stored per site, so on multisite every site is cleaned up.
+function relevatracking_delete_options() {
+	foreach ( array( 'api_key', 'client_id', 'additional_html', 'active', 'last_callback' ) as $name ) {
+		delete_option( 'relevatracking_' . $name );
+	}
+}
+
+if ( is_multisite() ) {
+	foreach ( get_sites( array( 'fields' => 'ids', 'number' => 0 ) ) as $site_id ) {
+		switch_to_blog( $site_id );
+		relevatracking_delete_options();
+		restore_current_blog();
+	}
+} else {
+	relevatracking_delete_options();
+}

@@ -58,14 +58,6 @@ class Relevatracking_Admin
         //add_action( 'admin_init', array( $this, 'register_settings' ) );
         //add_action( 'admin_menu', array( $this, 'add_admin_menu_item' ) );
         //add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
-
-        // Am I active?
-        if (isset($this->options[$this->get_id() . '_active'])) {
-            $option_active = get_option($this->options[$this->get_id() . '_active']['id']);
-            if ($option_active !== false and $option_active == false) {
-                return;
-            }
-        }
     }
 
     protected $options = array();
@@ -73,33 +65,44 @@ class Relevatracking_Admin
     const MENU_POSITION = '5';
     const RELEVATRC_KEY_URL = 'https://backend.releva.nz/v1/campaigns/get';
 
-    // self::checkRelevaUser($apikey);
-    public static function checkRelevaUser($apikey = '', $url = '', $timeout = 10)
+    const FRONTEND_URL = 'https://frontend.releva.nz/';
+
+    /**
+     * Validate an API key against the releva.nz backend (dev guide §5), sending
+     * this site's callback URL. Server-to-server only.
+     *
+     * Returns array('status' => 'valid'|'invalid'|'unreachable'|'error', ...):
+     * 'user_id' when valid, 'http_code' + 'message' for backend errors.
+     */
+    public static function verifyApiKey($apikey, $timeout = 10)
     {
-        $username = null;
-        if (!$url) {
-            $url = self::RELEVATRC_KEY_URL;
-        }
         $apikey = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$apikey);
-        if (!$apikey) {
-            return null;
+        if ($apikey === '') {
+            return array('status' => 'invalid');
         }
 
         $queryParams = array(
             'apikey'       => $apikey,
             'callback-url' => site_url('?releva_action=callback'),
         );
-        $connectUrl = $url . '?' . http_build_query($queryParams);
-        $data = self::getUrl($connectUrl, $timeout);
-
-        $response = self::arrayGetValue($data, 'response');
-        $response = json_decode($response);
-
-        if (!empty($response) && is_object($response) && isset($response->user_id)) {
-            $username = $response->user_id;
+        $data = self::getUrl(self::RELEVATRC_KEY_URL . '?' . http_build_query($queryParams), $timeout);
+        if ($data['errno'] || $data['response'] === false) {
+            return array('status' => 'unreachable');
         }
 
-        return $username;
+        $code = isset($data['info']['http_code']) ? (int)$data['info']['http_code'] : 0;
+        $response = json_decode($data['response']);
+        if (($code === 200 || $code === 304) && is_object($response) && isset($response->user_id) && is_numeric($response->user_id)) {
+            return array('status' => 'valid', 'user_id' => (string)$response->user_id);
+        }
+        if ($code === 401) {
+            return array('status' => 'invalid');
+        }
+        return array(
+            'status'    => 'error',
+            'http_code' => $code,
+            'message'   => is_object($response) && isset($response->message) ? (string)$response->message : '',
+        );
     }
 
     public function get_id()
@@ -110,53 +113,87 @@ class Relevatracking_Admin
 
     public function register_settings()
     {
+        $callbacks = array(
+            'api_key'         => 'api_opt_validate',
+            'additional_html' => 'additional_html_validate',
+            'active'          => 'active_validate',
+        );
         foreach ($this->options as $option) {
-            if($option['name'] === 'api_key') {
-                register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, 'api_opt_validate'));
-            } else {
-                register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, 'store_setting'));
-            }
+            register_setting($this->get_id() . '_group', $this->get_id() . '_' . $option['name'], array($this, $callbacks[$option['name']]));
         }
     }
 
-    public function store_setting($input)
-    {
-        return $input;
-    }    
-
+    /**
+     * Sanitize callback for the API key. Validates against the backend only when
+     * the key changed (dev guide §4.2); on failure the previous key is kept.
+     */
     public function api_opt_validate($input)
     {
-
-        $api_key_post = sanitize_text_field($this->butler_post('relevatracking_api_key'));
-
-        if ($api_key_post) {
-            $check_user = self::checkRelevaUser($api_key_post);
-            $compare = get_option('relevatracking_api_key');
-
-            if (!empty($check_user) && is_numeric($check_user) && $relevatracking_client_id = intval($check_user)) {
-                $_POST['relevatracking_client_id'] = $relevatracking_client_id;
-
-                if (false === get_option('relevatracking_client_id')) {
-                    add_option('relevatracking_client_id', $relevatracking_client_id);
-                } else {
-                    update_option('relevatracking_client_id', $relevatracking_client_id);
-                }
-
-                add_settings_error($this->plugin_name, 'api_key', __('Settings saved successfully!', $this->plugin_name), 'updated');
-                return sanitize_text_field($input);
-            } else {
-				$mess = __('Invalid Key!', $this->plugin_name).' ( '.$api_key_post.' )';
-                add_settings_error($this->plugin_name, 'api_key', $mess, 'error');
-                //Return $compare;
-                return;
-            }
-        } else {
-            //empty
-            add_settings_error($this->plugin_name, 'api_key', __('Invalid Key!', $this->plugin_name), 'error');
-            return $compare;
+        // WordPress runs the sanitize callback twice when the option is created
+        // (update_option -> add_option); validate and report only once.
+        static $done = array();
+        $key = sanitize_text_field((string)$input);
+        if (array_key_exists($key, $done)) {
+            return $done[$key];
         }
 
-        return sanitize_text_field($input);
+        $previous = (string)get_option('relevatracking_api_key');
+
+        if ($key === '') {
+            delete_option('relevatracking_client_id');
+            add_settings_error($this->plugin_name, 'api_key', __('API key removed. Tracking is inactive until a valid key is saved.', $this->plugin_name), 'updated');
+            return $done[$key] = '';
+        }
+
+        if ($key === $previous && (string)get_option('relevatracking_client_id') !== '') {
+            add_settings_error($this->plugin_name, 'api_key', __('Settings saved successfully!', $this->plugin_name), 'updated');
+            return $done[$key] = $key;
+        }
+
+        $check = self::verifyApiKey($key);
+        switch ($check['status']) {
+            case 'valid':
+                update_option('relevatracking_client_id', $check['user_id']);
+                add_settings_error($this->plugin_name, 'api_key', __('Settings saved successfully!', $this->plugin_name), 'updated');
+                return $done[$key] = $key;
+            case 'unreachable':
+                $message = __('Could not reach releva.nz, please retry.', $this->plugin_name);
+                break;
+            case 'error':
+                /* translators: 1: HTTP status code, 2: error message from releva.nz */
+                $message = sprintf(__('releva.nz returned an error (HTTP %1$s): %2$s', $this->plugin_name), $check['http_code'], $check['message']);
+                break;
+            default:
+                $message = __('Invalid Key!', $this->plugin_name);
+        }
+        if ($previous !== '') {
+            $message .= ' ' . __('The previously saved API key is still in use.', $this->plugin_name);
+        }
+        add_settings_error($this->plugin_name, 'api_key', $message, 'error');
+        return $done[$key] = $previous;
+    }
+
+    /**
+     * Additional HTML is injected verbatim into every page, so changing it needs
+     * the `unfiltered_html` capability — on multisite only network admins have
+     * it. The tag-push endpoint (releva.nz support) is unaffected.
+     */
+    public function additional_html_validate($input)
+    {
+        $html = Relevatracking_Public::sanitizeAdditionalHtml((string)$input);
+        $previous = (string)get_option('relevatracking_additional_html');
+        // Browsers submit textarea line breaks as CRLF — not a change.
+        $changed = str_replace("\r\n", "\n", $html) !== str_replace("\r\n", "\n", $previous);
+        if ($changed && !current_user_can('unfiltered_html')) {
+            add_settings_error($this->plugin_name, 'additional_html', __('You are not allowed to change the Additional HTML (on multisite only network administrators can). The previous value is kept.', $this->plugin_name), 'error');
+            return $previous;
+        }
+        return $html;
+    }
+
+    public function active_validate($input)
+    {
+        return empty($input) ? '0' : '1';
     }
 
     public function load_options()
@@ -179,7 +216,16 @@ class Relevatracking_Admin
         $option2['label'] = __('Additional HTML', $this->plugin_name);
         $option2['hint'] = __('Enter additional html e.g. for Consent Plugin Integration', $this->plugin_name);
         $option2['value'] = get_option($option2['id']);
-        $this->options[$option2['id']] = $option2;        
+        $this->options[$option2['id']] = $option2;
+
+        $option3 = array();
+        $option3['name'] = 'active';
+        $option3['id'] = $this->get_id() . '_' . $option3['name'];
+        $option3['type'] = 'checkbox';
+        $option3['label'] = __('Active', $this->plugin_name);
+        $option3['hint'] = __('Uncheck to pause tracking without removing the configuration', $this->plugin_name);
+        $option3['value'] = Relevatracking_Public::isActive();
+        $this->options[$option3['id']] = $option3;
     }
 
     public function add_admin_menu_item()
@@ -212,36 +258,55 @@ class Relevatracking_Admin
         echo $this->render('admin-menu');
     }
 
-    protected $api_key;
-	protected $client_id;
+    /**
+     * Multisite: the configuration is per site — name the site so the scope is
+     * explicit (dev guide §16). Empty on single-site installs.
+     */
+    public function get_scope_label()
+    {
+        if (!is_multisite()) {
+            return '';
+        }
+        /* translators: 1: site name, 2: site URL */
+        return sprintf(__('Settings for site "%1$s" (%2$s). Every site of the network has its own releva.nz configuration.', $this->plugin_name), get_bloginfo('name'), home_url('/'));
+    }
+
+    /**
+     * Multisite: other sites of the network using the same API key (dev guide §4.4).
+     */
+    public function get_sites_sharing_api_key()
+    {
+        $api_key = (string)get_option($this->plugin_name . '_api_key');
+        if (!is_multisite() || $api_key === '') {
+            return array();
+        }
+        $sites = array();
+        foreach (get_sites(array('fields' => 'ids', 'number' => 0, 'site__not_in' => array(get_current_blog_id()))) as $site_id) {
+            if ((string)get_blog_option($site_id, $this->plugin_name . '_api_key') === $api_key) {
+                $sites[] = get_blog_option($site_id, 'blogname') . ' (' . get_home_url($site_id, '/') . ')';
+            }
+        }
+        return $sites;
+    }
+
+    protected $iframe_url;
     public function render_admin_chart()
     {
-        $this->api_key = get_option($this->plugin_name . '_api_key');
-		//$this->api_key = $this->api_key.'_';
+        // Uses the key validated on save — no backend round trip per page view.
+        $api_key = (string)get_option($this->plugin_name . '_api_key');
+        $configured = $api_key !== '' && (string)get_option('relevatracking_client_id') !== '';
+        $this->iframe_url = $configured
+            ? 'https://frontend.releva.nz/token?' . http_build_query(array('token' => $api_key))
+            : self::FRONTEND_URL;
 
-            $check_user = null;
-			if(!empty($this->api_key)) {
-			$check_user = self::checkRelevaUser($this->api_key);
-			}
-
-            if (!empty($check_user) && is_numeric($check_user) && $relevatracking_client_id = intval($check_user)) {
-			   $this->client_id = $relevatracking_client_id;
-              echo $this->render('admin-chart');
-			}else {
-
-			//$this->api_key = '';
-
-			echo '<div style="margin: 25px 20px 0 2px;" id="setting-error-api_key" class="error settings-error"><p><strong>' .__('Invalid Key!', $this->plugin_name) . '</strong></p></div>' . "\n";
-
-
-			$dialog_received = __('If you already registered, you can find your API Key in your account and enter it here:', $this->plugin_name);
-			$dialog_received .=' <a href="admin.php?page=relevatracking_settings"><strong>' .__('Settings', $this->plugin_name) . '</strong></a>';
-
+        if (!$configured) {
+            $dialog_received = __('If you already registered, you can find your API Key in your account and enter it here:', $this->plugin_name);
+            $dialog_received .= ' <a href="' . esc_url(admin_url('admin.php?page=relevatracking_settings')) . '"><strong>' . __('Settings', $this->plugin_name) . '</strong></a>';
             $dialog_register = __('<a href="https://releva.nz" target="_blank">Not registered yet? Get started now!</a>', $this->plugin_name);
+            echo '<div style="margin: 25px 20px 0 2px;" class="notice notice-warning"><p>' . $dialog_received . '</p><p>' . $dialog_register . '</p></div>' . "\n";
+        }
 
-			echo '<div style="margin: 25px 20px 0 2px;" id="setting-error-api_key" class="update-nag"><p>' .$dialog_received . '</p><p>' .$dialog_register . '</p></div>' . "\n";
-			}
-
+        echo $this->render('admin-chart');
     }
 
     public function render($view_file)
@@ -305,15 +370,6 @@ class Relevatracking_Admin
         return $default;
     }
 
-    public function butler_post($name, $data = null)
-    {
-        if ($data) {
-            $_POST = $data;
-        }
-
-        return $this->butler_get($name, $_POST);
-    }
-
     public function add_message($text, $type = '', $position = null)
     {
         $message = array();
@@ -358,99 +414,6 @@ class Relevatracking_Admin
         return $result;
     }
 
-    public static function arrayGetValue(&$array, $name, $default = null, $type = '')
-    {
-        $result = null;
-
-        if (isset($array[$name])) {
-            $result = $array[$name];
-        }
-
-        // Handle the default case
-        if (is_null($result)) {
-            $result = $default;
-        }
-
-        // Handle the type constraint
-        switch (strtoupper($type)) {
-            case 'INT':
-            case 'INTEGER':
-                // Only use the first integer value
-                @preg_match('/-?[0-9]+/', $result, $matches);
-                $result = @(int) $matches[0];
-                break;
-
-            case 'FLOAT':
-            case 'DOUBLE':
-                // Only use the first floating point value
-                @preg_match('/-?[0-9]+(\.[0-9]+)?/', $result, $matches);
-                $result = @(float) $matches[0];
-                break;
-
-            case 'BOOL':
-            case 'BOOLEAN':
-                $result = (bool) $result;
-                break;
-
-            case 'ARRAY':
-                if (!is_array($result)) {
-                    $result = array($result);
-                }
-                break;
-
-            case 'STRING':
-                $result = (string) $result;
-                break;
-
-            case 'WORD':
-                $result = (string) preg_replace('#\W#', '', $result);
-                break;
-
-            case 'NONE':
-            default:
-                // No casting necessary
-                break;
-        }
-        return $result;
-    }
-
-    public function add_general_settings()
-    {
-        if (!empty($_POST)) {
-            $client_id = sanitize_text_field($this->butler_post('client_id'));
-            $api_key = sanitize_text_field($this->butler_post('api_key'));
-
-            $client_id_opt = 'relevatracking_client_id';
-            $api_key_opt = $this->plugin_name . '_api_key';
-
-            update_option($client_id_opt, $client_id);
-            update_option($api_key_opt, $api_key);
-
-            if (get_option($client_id_opt)) {
-                echo '1';
-            } else {
-                echo '0';
-            }
-            exit();
-
-            /*
-        if( get_option( 'relevatracking_client_id' ) ) {
-        update_option( 'relevatracking_client_id', 44 );
-        } else {
-        add_option( 'relevatracking_client_id', 55 , '', true );
-        }
-
-        // add $api_key
-        if(get_option($api_key_opt)){
-        update_option($api_key_opt, $api_key);
-        }
-        else {
-        add_option($api_key_opt, $api_key, '', true );
-        }
-         */
-        }
-    }
-
     /**
      * Register the stylesheets for the admin area.
      *
@@ -459,27 +422,5 @@ class Relevatracking_Admin
     public function enqueue_styles()
     {
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/relevatracking-admin.css', array(), $this->version, 'all');
-    }
-
-    /**
-     * Register the JavaScript for the admin area.
-     *
-     * @since    1.0.0
-     */
-    public function enqueue_scripts()
-    {
-        wp_enqueue_script('jquery-iframe-auto-height', plugin_dir_url(__FILE__) . 'js/jquery-iframe-auto-height.js', array('jquery'), $this->version, false);
-
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/relevatracking-admin.js', array('jquery'), $this->version, false);
-
-        wp_localize_script($this->plugin_name, $this->plugin_name . '_opt', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'dialog_received' => __('If you already registered, you can find your API Key in your account and enter it here:', $this->plugin_name),
-            'dialog_register' => __('<a href="https://releva.nz" target="_blank">Not registered yet? Get started now!</a>', $this->plugin_name),
-            'dialog_invalid' => __('Invalid Key!', $this->plugin_name),
-            'dialog_ok' => __('Send', $this->plugin_name),
-            'settings_saved' => __('Settings successfully saved!', $this->plugin_name),
-            'settings_error' => __('Error saving settings', $this->plugin_name),
-        ));
     }
 }

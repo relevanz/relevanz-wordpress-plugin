@@ -1,10 +1,10 @@
 === releva.nz | Dynamisches Retargeting ===
 Contributors: relevanz
 Tags: e-commerce, sales, advertising, marketing, retargeting, remarketing
-Requires at least: 3.0.1
-Tested up to: 7.0
+Requires at least: 4.5
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,3 +96,18 @@ Viele häufig gestellte Fragen findest du in unserer [Knowledge Base](https://he
 
 = 2.2.1 =
 * Fix pixel not firing after consent when a CMP script blocker (e.g. Borlabs Cookie) unblocks the inline configuration after page load
+
+= 2.3.0 =
+* Retargeting pixel sends the current page URL (`url` parameter) on every page type
+* Additional retargeting pixel (action=t) on the order confirmation page, only with consent
+* Conversion amount now also excludes fees (gift wrap, payment surcharges)
+* Product export: canonical column set incl. tax rate and lowest variant price (`from`)
+* Fix product export pagination: pages could overlap and miss products that were created at the same time (e.g. by an import)
+* New "Active" setting to pause tracking without removing the configuration
+* API key is only re-validated when it changes; distinct messages for invalid key and connection problems; an invalid key no longer removes the working one
+* Settings show the campaign ID and the last call from releva.nz
+* Multisite: shop system is detected correctly with network-activated WooCommerce, settings name the site they apply to, warning when an API key is used on several sites
+* Security: removed an unprotected AJAX settings handler and the browser-side key check
+* Declares compatibility with WooCommerce HPOS and cart/checkout blocks
+* Uninstall removes the plugin settings (on multisite from every site)
+* Tested with WordPress 6.9 and 7.1, WooCommerce 11.0 and 11.1
