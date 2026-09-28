@@ -11,18 +11,13 @@
  * @package    Relevatracking
  * @subpackage Relevatracking/admin/partials
  */
+$scope_label = $this->get_scope_label();
 ?>
 <div id="RelevaWrap" class="wrap">
 
 	<h2><?php echo esc_html( get_admin_page_title() ) ?></h2>
-<div id="RelevaChart" class="stat-block"></div>
-<!--  scrolling="no" frameborder="0" -->
-<iframe  style="border: 0px; width: 100%;" id="gopolegelcontent"></iframe>
+	<?php if ( $scope_label ): ?>
+		<p><em><?php echo esc_html( $scope_label ) ?></em></p>
+	<?php endif ?>
+	<iframe src="<?php echo esc_url( $this->iframe_url ) ?>" style="border: 0px; width: 100%; min-height: 800px; height: calc(100vh - 160px);" id="gopolegelcontent"></iframe>
 </div>
-<!--Init releva stats-->
-<script type="text/javascript"><!--
-    jQuery( document ).ready(function($) {
-		$('#RelevaChart').conversions({apikey:"<?php echo $this->api_key ; ?>"});
-     });
-//--></script>
-

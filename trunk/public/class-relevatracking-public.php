@@ -88,24 +88,16 @@ class Relevatracking_Public
 	 */
 	public static function fetchUserId($apikey, $timeout = 10)
 	{
-		$apikey = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$apikey);
-		if (!$apikey) {
-			return null;
-		}
+		$check = Relevatracking_Admin::verifyApiKey($apikey, $timeout);
+		return $check['status'] === 'valid' ? $check['user_id'] : null;
+	}
 
-		$queryParams = array(
-			'apikey'       => $apikey,
-			'callback-url' => site_url('?releva_action=callback'),
-		);
-		$url = 'https://backend.releva.nz/v1/campaigns/get?' . http_build_query($queryParams);
-
-		$data = self::getUrl($url, $timeout);
-		$response = json_decode(self::arrayGetValue($data, 'response'));
-
-		if (!empty($response) && is_object($response) && isset($response->user_id)) {
-			return (string)$response->user_id;
-		}
-		return null;
+	/**
+	 * Tracking is on unless the merchant unchecked "Active" in the settings.
+	 */
+	public static function isActive()
+	{
+		return (string)get_option('relevatracking_active', '1') !== '0';
 	}
 
 	public function releva_init_action()
@@ -187,8 +179,15 @@ class Relevatracking_Public
 	/**
 	 * Timing-safe compare of the auth hash query parameter against md5(apikey:client_id).
 	 */
-	protected function checkAuth()
+	protected function checkAuth($allow_admin = false)
 	{
+		// Dev guide §7.3: a logged-in shop admin may open the read-only endpoints
+		// (callback, export) directly for diagnostics. Never for the tag push —
+		// that would let a cross-site POST rewrite the Additional HTML.
+		if ($allow_admin && current_user_can('manage_options')) {
+			return true;
+		}
+
 		$apikey = (string)get_option('relevatracking_api_key');
 		$client_id = (string)get_option('relevatracking_client_id');
 		$auth = isset($_GET['auth']) ? (string)$_GET['auth'] : '';
@@ -227,8 +226,11 @@ class Relevatracking_Public
 
 	public function callback()
 	{
-		if (!$this->checkAuth()) {
+		if (!$this->checkAuth(true)) {
 			return;
+		}
+		if (!current_user_can('manage_options')) {
+			update_option('relevatracking_last_callback', time(), false);
 		}
 
 		while (ob_get_level() > 0) { ob_end_clean(); }
@@ -237,7 +239,9 @@ class Relevatracking_Public
 		global $wp_version;
 		$wc_version = '';
 		$system = 'WordPress';
-		if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+		// class_exists() also covers a network-activated WooCommerce on multisite,
+		// which never appears in the site's own `active_plugins` option.
+		if (class_exists('WooCommerce', false)) {
 			$wc_version = defined('WC_VERSION') ? WC_VERSION : '';
 			$system = 'WooCommerce';
 		}
@@ -278,6 +282,16 @@ class Relevatracking_Public
 
 		$apikey = (string)get_option('relevatracking_api_key');
 		$client_id = (string)get_option('relevatracking_client_id');
+
+		if (!self::isActive()) {
+			status_header(503);
+			echo json_encode(array(
+				'ok' => false,
+				'plugin-version' => $this->version,
+				'reason' => 'tracking-disabled',
+			));
+			exit;
+		}
 
 		$body = array(
 			'ok' => true,
@@ -383,7 +397,7 @@ class Relevatracking_Public
 			return;
 		}
 
-		if (!$this->checkAuth()) {
+		if (!$this->checkAuth(true)) {
 			return;
 		}
 
@@ -401,7 +415,9 @@ class Relevatracking_Public
 			'limit'   => $limit,
 			'page'    => $page,
 			'paginate' => true,
-			'orderby' => 'id',
+			// Must be upper-case: WP_Query ignores 'id' and falls back to post_date,
+			// which makes pages overlap for products created in the same second.
+			'orderby' => 'ID',
 			'order'   => 'asc',
 		);
 		if ($in_stock_only) {
@@ -453,6 +469,7 @@ class Relevatracking_Public
 			'id', 'variationId', 'gtin', 'brand', 'categoryIds', 'name',
 			'descriptionShort', 'descriptionLong',
 			'price', 'priceOffer', 'priceNet', 'priceNetOffer',
+			'basePrice', 'basePriceUnit', 'basePriceQuantity', 'taxrate', 'from',
 			'quantity', 'link', 'image', 'lastUpdate',
 		);
 		$op = fopen('php://output', 'wb');
@@ -552,6 +569,21 @@ class Relevatracking_Public
 		$row['priceNet']      = $regular !== '' ? wc_format_decimal(wc_get_price_excluding_tax($priceSource, array('price' => $regular)), 2) : '';
 		$row['priceNetOffer'] = $sale !== '' && $sale !== null ? wc_format_decimal(wc_get_price_excluding_tax($priceSource, array('price' => $sale)), 2) : $row['priceNet'];
 
+		// WooCommerce has no native base price (unit price) — left empty.
+		$row['basePrice'] = '';
+		$row['basePriceUnit'] = '';
+		$row['basePriceQuantity'] = '';
+		$row['taxrate'] = self::taxRate($priceSource);
+
+		// Variable products: lowest net price across the variations.
+		$row['from'] = '';
+		if ($product->get_type() === 'variable') {
+			$min = $product->get_variation_price('min', false);
+			if ($min !== '' && $min !== null) {
+				$row['from'] = wc_format_decimal(wc_get_price_excluding_tax($product, array('price' => $min)), 2);
+			}
+		}
+
 		$stock = $priceSource->get_stock_quantity();
 		if ($stock === null || $stock === '') {
 			$row['quantity'] = $priceSource->is_in_stock() ? 1 : 0;
@@ -576,6 +608,20 @@ class Relevatracking_Public
 		$row['lastUpdate'] = $lastUpdate ? gmdate('c', (int)$lastUpdate) : '';
 
 		return $row;
+	}
+
+	/**
+	 * Effective tax rate in percent for the shop's base country (dev guide §11.3.1:
+	 * the market rate, never the maximum across the tax table). Compound rates
+	 * are applied the way WooCommerce applies them.
+	 */
+	protected static function taxRate($product)
+	{
+		if (!wc_tax_enabled() || !$product->is_taxable()) {
+			return '0';
+		}
+		$rates = WC_Tax::get_base_tax_rates($product->get_tax_class());
+		return wc_format_decimal(array_sum(WC_Tax::calc_tax(100, $rates, false)), 2, true);
 	}
 
 	protected static function extractGtin($product, $variation)
@@ -630,72 +676,12 @@ class Relevatracking_Public
 		return $images;
 	}
 
-	public static function getUrl($url, $timeout = 10)
-	{
-		$curl_opts = array(
-			CURLOPT_URL => $url,
-			CURLOPT_TIMEOUT => $timeout,
-			CURLOPT_CONNECTTIMEOUT => $timeout,
-			CURLOPT_RETURNTRANSFER => true,
-		);
-		$ch = curl_init();
-		curl_setopt_array($ch, $curl_opts);
-		$response = curl_exec($ch);
-		$errno = curl_errno($ch);
-		$error = curl_error($ch);
-		$info = curl_getinfo($ch);
-		curl_close($ch);
-		return array(
-			'response' => $response,
-			'info'     => $info,
-			'errno'    => $errno,
-			'error'    => $error,
-		);
-	}
-
-	public static function arrayGetValue(&$array, $name, $default = null, $type = '')
-	{
-		$result = null;
-		if (isset($array[$name])) {
-			$result = $array[$name];
-		}
-		if (is_null($result)) {
-			$result = $default;
-		}
-		switch (strtoupper($type)) {
-			case 'INT':
-			case 'INTEGER':
-				@preg_match('/-?[0-9]+/', $result, $matches);
-				$result = @(int)$matches[0];
-				break;
-			case 'FLOAT':
-			case 'DOUBLE':
-				@preg_match('/-?[0-9]+(\.[0-9]+)?/', $result, $matches);
-				$result = @(float)$matches[0];
-				break;
-			case 'BOOL':
-			case 'BOOLEAN':
-				$result = (bool)$result;
-				break;
-			case 'ARRAY':
-				if (!is_array($result)) { $result = array($result); }
-				break;
-			case 'STRING':
-				$result = (string)$result;
-				break;
-			case 'WORD':
-				$result = (string)preg_replace('#\W#', '', $result);
-				break;
-		}
-		return $result;
-	}
-
 	/**
 	 * Footer hook — emit one tag per page render.
 	 */
 	public function relevatracking()
 	{
-		if (!$this->client_id) {
+		if (!$this->client_id || !self::isActive()) {
 			return;
 		}
 
@@ -812,7 +798,16 @@ class Relevatracking_Public
 		if ($user_id) {
 			$params['custid'] = $user_id;
 		}
+		// Dev guide 1.2: URL-encoded current page URL on every retargeting action.
+		$params['url'] = self::currentPageUrl();
 		return self::TRACKER_BASE . '?' . http_build_query($params);
+	}
+
+	protected static function currentPageUrl()
+	{
+		$host = isset($_SERVER['HTTP_HOST']) ? (string)$_SERVER['HTTP_HOST'] : (string)parse_url(home_url(), PHP_URL_HOST);
+		$uri = isset($_SERVER['REQUEST_URI']) ? (string)$_SERVER['REQUEST_URI'] : '/';
+		return (is_ssl() ? 'https' : 'http') . '://' . $host . $uri;
 	}
 
 	/**
@@ -820,7 +815,7 @@ class Relevatracking_Public
 	 */
 	public function retargeting_confirmation($order_id)
 	{
-		if ($this->conversion_fired) {
+		if ($this->conversion_fired || !self::isActive()) {
 			return;
 		}
 
@@ -856,10 +851,17 @@ class Relevatracking_Public
 		$anon['anon'] = 1;
 		$anonUrl = self::CONVERSION_BASE . '?' . http_build_query($anon);
 
+		// Retargeting pixel action=t (dev guide §10.7) — consent-only, no anonymous variant.
+		$orderTrackerUrl = self::buildTrackerUrl('t', $this->client_id, $user_id, array(
+			'orderId'  => $this->order_id,
+			'amount'   => $this->order_total,
+			'products' => $products,
+		));
+
 		$additional_html = (string)get_option('relevatracking_additional_html');
 		$this->additional_html = $additional_html !== '' ? $additional_html : self::DEFAULT_ADDITIONAL_HTML;
 
-		$this->addTrackingCode($fullUrl, $anonUrl);
+		$this->addTrackingCode($fullUrl, $anonUrl, $orderTrackerUrl);
 	}
 
 	private function load_confirmation_order_id($order_id_arg = null)
@@ -886,15 +888,18 @@ class Relevatracking_Public
 
 		$this->order_id = $order->get_order_number();
 		// Conversion `amount` per dev-guide §10.7.1: net product revenue,
-		// excluding tax and shipping. Formula expands to:
-		//   amount = items_net + fees_net − discount
-		// because get_total() is the gross grand total, get_total_tax() covers
-		// items+shipping+fees tax, and get_total_shipping() is shipping net.
-		// (Fee inclusion is a known edge case — most WC shops don't use fees;
-		// strict fee exclusion is on the v2.3.0 backlog.)
+		// excluding tax, shipping and fees:
+		//   amount = total − total_tax − shipping_net − fees_net
+		// get_total_tax() covers items+shipping+fees tax. Only surcharges
+		// (positive fees) are removed — a negative fee is a discount and stays
+		// deducted, like a coupon.
+		$fees = 0.0;
+		foreach ($order->get_fees() as $fee) {
+			$fees += max(0.0, (float)$fee->get_total());
+		}
 		$this->order_total = number_format(
-			(float)$order->get_total() - (float)$order->get_total_tax() - (float)$order->get_total_shipping(),
-			function_exists('wc_get_price_decimals') ? wc_get_price_decimals() : 2,
+			(float)$order->get_total() - (float)$order->get_total_tax() - (float)$order->get_shipping_total() - $fees,
+			2,
 			'.',
 			''
 		);
@@ -922,9 +927,10 @@ class Relevatracking_Public
 	}
 
 	/**
-	 * Inject the page's tracking script. `$anonUrl` is empty on every page except the order-success page.
+	 * Inject the page's tracking script. `$anonUrl` and `$orderTrackerUrl` are
+	 * empty on every page except the order-success page.
 	 */
-	public function addTrackingCode($url, $anonUrl = '')
+	public function addTrackingCode($url, $anonUrl = '', $orderTrackerUrl = '')
 	{
 		// Load in footer (`in_footer=true`) so the script runs after </body>
 		// has parsed — the polling loop creates <script> tags and appends them
@@ -938,7 +944,8 @@ class Relevatracking_Public
 		);
 
 		$assign = 'var relevanzURL = ' . wp_json_encode((string)$url) . ';' .
-		          'var relevanzAnonymousURL = ' . wp_json_encode((string)$anonUrl) . ';';
+		          'var relevanzAnonymousURL = ' . wp_json_encode((string)$anonUrl) . ';' .
+		          'var relevanzOrderTrackerURL = ' . wp_json_encode((string)$orderTrackerUrl) . ';';
 		wp_add_inline_script($this->plugin_name, $assign, 'before');
 		wp_add_inline_script($this->plugin_name, $this->additional_html, 'before');
 	}
